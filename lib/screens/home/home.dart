@@ -94,7 +94,6 @@ class _HomeState extends State<Home> {
     final name = authUser!.displayName!;
     final email = authUser.email!;
     final photo = authUser.photoURL!;
-
     return Scaffold(
       drawer: NavigationDrawer(
         name: name,
@@ -105,26 +104,23 @@ class _HomeState extends State<Home> {
         centerTitle: true,
         backgroundColor: const Color(0xff102733),
         elevation: 0,
-        title: Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: Row(
-            children: const <Widget>[
-              Text(
-                "EVENTOS ",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800),
-              ),
-              Text(
-                "DA REP",
-                style: TextStyle(
-                    color: Color(0xffFCCD00),
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800),
-              ),
-            ],
-          ),
+        title: Row(
+          children: const <Widget>[
+            Text(
+              "EVENTOS ",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800),
+            ),
+            Text(
+              "DA REP",
+              style: TextStyle(
+                  color: Color(0xffFCCD00),
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800),
+            ),
+          ],
         ),
       ),
       body: Stack(
@@ -143,7 +139,7 @@ class _HomeState extends State<Home> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          "Olá, ${authUser?.displayName}!",
+                          "Olá, ${authUser.displayName}!",
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -171,7 +167,7 @@ class _HomeState extends State<Home> {
                   height: 20,
                 ),
                 SizedBox(
-                  height: mediaQuery.size.height * 0.65,
+                  height: mediaQuery.size.height * 0.68,
                   child: RefreshIndicator(
                     onRefresh: () => Future.sync(
                       () => _pagingController.refresh(),
