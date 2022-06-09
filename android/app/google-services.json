@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "922896371036",
+    "project_id": "eventos-da-rep",
+    "storage_bucket": "eventos-da-rep.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922896371036:android:73f022650fd609487ec599",
+        "android_client_info": {
+          "package_name": "com.example.eventos_da_rep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "922896371036-rs91th6ge9prl6bt9o2eh2j7q8bcd7cj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.eventos_da_rep",
+            "certificate_hash": "cf8d4698c3fcb3988803d9c297860b29f74319d6"
+          }
+        },
+        {
+          "client_id": "922896371036-rehsbqri3bv7093eh5i801chaqqe898a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmAC7tGBzuSWnCjf7iA1PwiDS4dJOEX9c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "922896371036-rehsbqri3bv7093eh5i801chaqqe898a.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "922896371036-rp8ebm5jdqubbbp04uiva3hq02khefl1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.eventosDaRep"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
