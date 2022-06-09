@@ -6,8 +6,8 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
-import 'screens/home.dart';
-import 'screens/login.dart';
+import 'screens/home/home.dart';
+import 'screens/login/login.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();

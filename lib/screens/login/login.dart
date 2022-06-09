@@ -4,7 +4,7 @@ import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:provider/provider.dart';
 
-import '../providers/auth_provider.dart';
+import '../../providers/auth_provider.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);

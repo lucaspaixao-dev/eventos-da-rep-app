@@ -2,9 +2,9 @@ import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
 import 'package:flutter/material.dart';
 
-import '../helpers/date_helper.dart';
-import '../helpers/string_helper.dart';
-import '../providers/shared_preferences_provider.dart';
+import '../../helpers/date_helper.dart';
+import '../../helpers/string_helper.dart';
+import '../../providers/shared_preferences_provider.dart';
 
 class EventDetails extends StatefulWidget {
   final Event event;
