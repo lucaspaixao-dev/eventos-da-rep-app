@@ -1,4 +1,3 @@
-import 'package:eventos_da_rep/models/user.dart';
 import 'package:intl/intl.dart';
 
 class Event {

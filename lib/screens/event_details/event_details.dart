@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -335,9 +336,16 @@ class _EventDetailsState extends State<EventDetails> {
                               children: [
                                 SizedBox(
                                   width: mediaQuery.size.width * 0.89,
-                                  child: Text(
-                                    widget.event.description,
-                                    style: const TextStyle(
+                                  // child: Text(
+                                  //   widget.event.description,
+                                  //   style: const TextStyle(
+                                  //     color: Colors.white,
+                                  //     fontSize: 14,
+                                  //   ),
+                                  // ),
+                                  child: Html(
+                                    data: widget.event.description,
+                                    defaultTextStyle: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,
                                     ),
