@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 // ignore: depend_on_referenced_packages
+import 'package:eventos_da_rep/models/device.dart';
 import "package:http/http.dart" as http;
 
 import '../models/user.dart';
@@ -18,7 +19,12 @@ class UserClient {
       'email': user.email,
       'authenticationId': user.authenticationId,
       'photo': user.photo,
-      'isAdmin': false
+      'isAdmin': false,
+      'device': {
+        'brand': user.device.brand,
+        'model': user.device.model,
+        'token': user.device.token,
+      },
     };
 
     final response = await http.post(
@@ -34,6 +40,26 @@ class UserClient {
       return json['id'];
     } else {
       throw Exception('Failed to create a new user');
+    }
+  }
+
+  Future<void> syncDevide(String userId, Device device) async {
+    var request = {
+      'brand': device.brand,
+      'model': device.model,
+      'token': device.token,
+    };
+
+    final response = await http.put(
+      Uri.parse("$url/users/$userId/devices"),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(request),
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception('Failed to sync the device');
     }
   }
 

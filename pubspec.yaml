@@ -25,6 +25,9 @@ dependencies:
   infinite_scroll_pagination: ^3.2.0
   shared_preferences: ^2.0.15
   awesome_snackbar_content: ^0.0.5
+  firebase_messaging: ^11.4.1
+  device_info_plus: ^3.2.4
+  google_maps_flutter: ^2.1.7
 
 dev_dependencies:
   flutter_test:

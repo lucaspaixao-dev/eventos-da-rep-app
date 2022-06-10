@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../helpers/date_helper.dart';
 import '../../helpers/string_helper.dart';
@@ -216,6 +220,39 @@ class _EventDetailsState extends State<EventDetails> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
+                                ElevatedButton.icon(
+                                  icon: const Icon(
+                                    Icons.map_outlined,
+                                    color: Colors.white,
+                                  ),
+                                  label: const Text("Ver no mapa"),
+                                  onPressed: () {
+                                    showCupertinoModalBottomSheet(
+                                      context: context,
+                                      builder: (_) => ShowMap(
+                                        id: widget.event.id,
+                                        latitude: widget.event.latitude,
+                                        longitude: widget.event.longitude,
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
                                 const Icon(
                                   Icons.calendar_month,
                                   size: 16,
@@ -319,6 +356,52 @@ class _EventDetailsState extends State<EventDetails> {
           ),
         );
       },
+    );
+  }
+}
+
+class ShowMap extends StatefulWidget {
+  final String id;
+  final double latitude;
+  final double longitude;
+
+  const ShowMap({
+    Key? key,
+    required this.id,
+    required this.latitude,
+    required this.longitude,
+  }) : super(key: key);
+
+  @override
+  State<ShowMap> createState() => _ShowMapState();
+}
+
+class _ShowMapState extends State<ShowMap> {
+  final Completer<GoogleMapController> _controller = Completer();
+
+  @override
+  Widget build(BuildContext context) {
+    final CameraPosition position = CameraPosition(
+      target: LatLng(widget.latitude, widget.longitude),
+      zoom: 14.4746,
+    );
+
+    final Marker marker = Marker(
+      markerId: MarkerId(widget.id),
+      position: LatLng(widget.latitude, widget.longitude),
+    );
+
+    Set<Marker> makers = {marker};
+
+    return Scaffold(
+      body: GoogleMap(
+        markers: makers,
+        mapType: MapType.hybrid,
+        initialCameraPosition: position,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
+      ),
     );
   }
 }
