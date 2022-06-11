@@ -10,7 +10,10 @@ class UserClient {
   late final String url;
 
   UserClient() {
-    url = Platform.isAndroid ? "http://10.0.2.2:8080" : "http://localhost:8080";
+    url = Platform.isAndroid
+        ? "http://10.0.2.2:8080"
+        : //"http://localhost:8080";
+        "http://192.168.15.3:8080";
   }
 
   Future<String> createUser(User user) async {

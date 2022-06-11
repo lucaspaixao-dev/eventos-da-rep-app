@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-// ignore: depend_on_referenced_packages
 import "package:http/http.dart" as http;
 
 import '../models/event.dart';
@@ -9,12 +8,15 @@ class EventClient {
   late final String url;
 
   EventClient() {
-    url = Platform.isAndroid ? "http://10.0.2.2:8080" : "http://localhost:8080";
+    url = Platform.isAndroid
+        ? "http://10.0.2.2:8080"
+        : //"http://localhost:8080";
+        "http://192.168.15.3:8080";
   }
 
   Future<List<Event>> getEvents(int pageKey, int pageSize) async {
     final response = await http.get(
-      Uri.parse("$url/events"),
+      Uri.parse("$url/events/actives"),
     );
 
     if (response.statusCode == 200) {
