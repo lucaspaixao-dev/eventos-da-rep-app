@@ -1,7 +1,8 @@
+import 'package:eventos_da_rep/exceptions/exceptions.dart';
 import 'package:eventos_da_rep/models/event.dart';
+import 'package:eventos_da_rep/models/user_resume.dart';
 import 'package:eventos_da_rep/screens/event_details/event_details.dart';
 import 'package:eventos_da_rep/widgets/app_snack_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -10,6 +11,11 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import '../../helpers/date_helper.dart';
 import '../../helpers/string_helper.dart';
 import '../../http/event_client.dart';
+import '../../http/user_client.dart';
+import '../../models/device.dart';
+import '../../providers/device_provider.dart';
+import '../../providers/shared_preferences_provider.dart';
+import '../../services/firebase_service.dart';
 import 'components/navigation_drawer.dart';
 import 'components/no_items_found_indicator.dart';
 import 'components/popular_event_tile.dart';
@@ -23,6 +29,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final eventClient = EventClient();
+  final FirebaseService firebaseService = FirebaseService();
+  final authUser = FirebaseService().getAuthUser();
+  final firebaseMessaging = FirebaseService().getMessaging();
+  final SharedPreferencesProvider sharedPreferencesProvider =
+      SharedPreferencesProvider();
+
   static const _pageSize = 20;
 
   final PagingController<int, Event> _pagingController =
@@ -37,68 +49,36 @@ class _HomeState extends State<Home> {
     });
 
     FlutterNativeSplash.remove();
-  }
 
-  Future<void> _fetchPage(int pageKey) async {
-    try {
-      final newEvents = await eventClient.getEvents(pageKey, _pageSize);
-      final isLastPage = newEvents.length < _pageSize;
-
-      if (isLastPage) {
-        _pagingController.appendLastPage(newEvents);
+    _syncDevice().catchError((e) {
+      if (e is ApiException) {
+        SnackBar snackBar = buildErrorSnackBar(e.cause);
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       } else {
-        final nextPageKey = pageKey + newEvents.length;
-        _pagingController.appendPage(newEvents, nextPageKey);
+        SnackBar snackBar =
+            buildErrorSnackBar("Ocorreu um erro ao sincronizar o dispositivo");
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
-    } catch (error) {
-      _pagingController.error = error;
-    }
-  }
-
-  Future<void> _navigateAndDisplayResult(
-    BuildContext context,
-    Event event,
-  ) async {
-    final result = await showCupertinoModalBottomSheet<Map<String, String>>(
-      context: context,
-      builder: (context) => EventDetails(
-        event: event,
-      ),
-    );
-
-    if (result != null) {
-      final isSuccess = result['isSuccess'] == 'success' ? true : false;
-
-      final appSnackBar = AppSnackBar(
-        duration: const Duration(milliseconds: 2000),
-        title: result['title']!,
-        message: result['message']!,
-        isSuccess: isSuccess,
-        elevation: 10.0,
-      ).buildSnackBar();
-
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(appSnackBar);
-
-      if (isSuccess) {
-        _pagingController.refresh();
-      }
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final authUser = FirebaseAuth.instance.currentUser;
-
-    final name = authUser!.displayName!;
-    final email = authUser.email!;
-    final photo = authUser.photoURL!;
     return Scaffold(
-      drawer: NavigationDrawer(
-        name: name,
-        email: email,
-        photo: photo,
+      drawer: FutureBuilder<UserResume>(
+        future: _updateUserInfos(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return NavigationDrawer(
+              name: snapshot.data!.name,
+              email: snapshot.data!.email,
+              photo: snapshot.data!.photo,
+            );
+          } else {
+            return const Text("just running");
+          }
+        },
       ),
       appBar: AppBar(
         centerTitle: true,
@@ -138,13 +118,22 @@ class _HomeState extends State<Home> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          "Olá, ${authUser.displayName}!",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 22,
-                          ),
+                        FutureBuilder<String>(
+                          future: _getName(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(
+                                "Olá, ${snapshot.data}!",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 22,
+                                ),
+                              );
+                            } else {
+                              return const Text("just running");
+                            }
+                          },
                         ),
                         const SizedBox(
                           height: 6,
@@ -179,7 +168,33 @@ class _HomeState extends State<Home> {
                         noItemsFoundIndicatorBuilder: (_) =>
                             const NoItemsFoundIndicator(),
                         itemBuilder: (context, item, index) => InkWell(
-                          onTap: () => _navigateAndDisplayResult(context, item),
+                          onTap: () async {
+                            SnackBar appSnackBar;
+                            bool isSuccess;
+                            await _navigateAndDisplayResult(context, item)
+                                .then((value) => {
+                                      if (value != null)
+                                        {
+                                          isSuccess =
+                                              value['isSuccess'] == 'success',
+                                          appSnackBar = AppSnackBar(
+                                            duration: const Duration(
+                                              milliseconds: 2000,
+                                            ),
+                                            title: value['title']!,
+                                            message: value['message']!,
+                                            isSuccess: isSuccess,
+                                            elevation: 10.0,
+                                          ).buildSnackBar(),
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(appSnackBar),
+                                          if (isSuccess)
+                                            {
+                                              _pagingController.refresh(),
+                                            }
+                                        }
+                                    });
+                          },
                           child: PopularEventTile(
                             desc: item.title,
                             imgeAssetPath: item.photo,
@@ -197,5 +212,108 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
+  }
+
+  Future<Map<String, String>?> _navigateAndDisplayResult(
+    BuildContext context,
+    Event event,
+  ) async {
+    final result = await showCupertinoModalBottomSheet<Map<String, String>>(
+      context: context,
+      builder: (context) => EventDetails(
+        event: event,
+      ),
+    );
+
+    return result;
+  }
+
+  Future<void> _fetchPage(int pageKey) async {
+    try {
+      final newEvents = await eventClient.getEvents(pageKey, _pageSize);
+      final isLastPage = newEvents.length < _pageSize;
+
+      if (isLastPage) {
+        _pagingController.appendLastPage(newEvents);
+      } else {
+        final nextPageKey = pageKey + newEvents.length;
+        _pagingController.appendPage(newEvents, nextPageKey);
+      }
+    } on ApiException catch (e) {
+      SnackBar snackBar = buildErrorSnackBar(e.cause);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
+      _pagingController.error = e;
+    }
+  }
+
+  Future<void> _syncDevice() async {
+    final SharedPreferencesProvider provider = SharedPreferencesProvider();
+
+    final String? userId = await provider.getStringValue("userId");
+
+    if (userId != null) {
+      String? token = await firebaseMessaging.getToken();
+
+      await provider.putStringValue(
+        'cloudToken',
+        token!,
+      );
+
+      final DeviceProvider deviceProvider = DeviceProvider();
+      final Device device = await deviceProvider.getDeviceInfos(token);
+
+      final UserClient client = UserClient();
+
+      try {
+        await client.syncDevide(userId, device);
+        FirebaseService firebaseService = FirebaseService();
+
+        String apiToken = await firebaseService.getAuthUser()!.getIdToken();
+        await provider.putStringValue(
+          'apiToken',
+          apiToken,
+        );
+      } catch (_) {
+        rethrow;
+      }
+    }
+  }
+
+  Future<String> _getName() async {
+    if (authUser!.displayName != null) {
+      return authUser!.displayName!;
+    }
+
+    String? name = await sharedPreferencesProvider.getStringValue("name");
+    if (name != null) {
+      return name;
+    }
+
+    return "";
+  }
+
+  Future<UserResume> _updateUserInfos() async {
+    if (authUser!.displayName != null && authUser!.photoURL != null) {
+      return UserResume(
+        authUser!.displayName!,
+        authUser!.email!,
+        authUser!.photoURL!,
+      );
+    }
+
+    String? name = await sharedPreferencesProvider.getStringValue("name");
+    String? photoUrl =
+        await sharedPreferencesProvider.getStringValue("photoUrl");
+
+    if (name != null && photoUrl != null) {
+      await authUser?.updateDisplayName(name);
+      await authUser?.updatePhotoURL(photoUrl);
+      await authUser?.reload();
+
+      return UserResume(name, authUser!.email!, photoUrl);
+    }
+
+    return UserResume("", "", "");
   }
 }

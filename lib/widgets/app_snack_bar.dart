@@ -30,3 +30,13 @@ class AppSnackBar {
     );
   }
 }
+
+SnackBar buildErrorSnackBar(String message) {
+  return AppSnackBar(
+    title: "Ops! Ocorreu um erro!",
+    message: message,
+    isSuccess: false,
+    elevation: 10.0,
+    duration: const Duration(milliseconds: 2000),
+  ).buildSnackBar();
+}

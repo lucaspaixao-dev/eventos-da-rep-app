@@ -1,3 +1,4 @@
+import 'package:eventos_da_rep/exceptions/exceptions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_signin_button/button_list.dart';
@@ -5,6 +6,8 @@ import 'package:flutter_signin_button/button_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
+import '../../widgets/app_snack_bar.dart';
+import 'credentials_login.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -79,7 +82,30 @@ class _LoginState extends State<Login> {
                   Buttons.GoogleDark,
                   text: "Faça login no Google",
                   onPressed: () async {
-                    await _signInWithGoogle();
+                    try {
+                      final authService =
+                          Provider.of<AuthProvider>(context, listen: false);
+                      await authService.googleSignIn();
+                    } on ApiException catch (e) {
+                      SnackBar snackBar = buildErrorSnackBar(e.cause);
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    } on Exception catch (e) {
+                      SnackBar snackBar = buildErrorSnackBar(
+                          "Ocorreu um erro ao conectar ao Google, tente novamente mais tarde.");
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    }
+                  },
+                ),
+                SignInButton(
+                  Buttons.Email,
+                  text: "Faça login com seu e-mail",
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CredentialsLogin(),
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(
@@ -98,10 +124,5 @@ class _LoginState extends State<Login> {
         ],
       ),
     );
-  }
-
-  Future _signInWithGoogle() async {
-    final authService = Provider.of<AuthProvider>(context, listen: false);
-    authService.signIn();
   }
 }

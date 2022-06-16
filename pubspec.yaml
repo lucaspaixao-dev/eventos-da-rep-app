@@ -29,6 +29,7 @@ dependencies:
   device_info_plus: ^3.2.4
   google_maps_flutter: ^2.1.7
   http:
+  flutter_gravatar:
 
 dev_dependencies:
   flutter_test:

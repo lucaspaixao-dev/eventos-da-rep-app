@@ -34,11 +34,16 @@ class Event {
   });
 
   factory Event.fromJson(dynamic json) {
-    List<String> _getUsersId(List<dynamic>? usersId) {
-      if (usersId == null) {
-        return [];
+    List<String> _getUsersId(List<dynamic>? users) {
+      List<String> currentUsers = [];
+
+      if (users != null) {
+        users.forEach((element) {
+          currentUsers.add(element['id']);
+        });
       }
-      return usersId.cast<String>().toList();
+
+      return currentUsers;
     }
 
     return Event(

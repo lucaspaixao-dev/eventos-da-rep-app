@@ -3,7 +3,6 @@ import 'package:eventos_da_rep/models/device.dart';
 class User {
   final String? id;
   final String name;
-  final String authenticationId;
   final String email;
   final String photo;
   final Device device;
@@ -12,10 +11,27 @@ class User {
   User({
     this.id,
     required this.name,
-    required this.authenticationId,
     required this.email,
     required this.photo,
     required this.device,
     this.events,
   });
+
+  factory User.fromJson(dynamic json) {
+    List<String> _getEventsId(List<dynamic>? eventsId) {
+      if (eventsId == null) {
+        return [];
+      }
+      return eventsId.cast<String>().toList();
+    }
+
+    return User(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      email: json['email'] as String,
+      photo: json['photo'] as String,
+      events: _getEventsId(json['events']),
+      device: Device.fromJson(json['device']),
+    );
+  }
 }

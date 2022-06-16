@@ -1,11 +1,6 @@
 import 'dart:io';
 
 import 'package:eventos_da_rep/firebase_options.dart';
-import 'package:eventos_da_rep/http/user_client.dart';
-import 'package:eventos_da_rep/models/device.dart';
-import 'package:eventos_da_rep/providers/device_provider.dart';
-import 'package:eventos_da_rep/providers/shared_preferences_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/home/home.dart';
 import 'screens/login/login.dart';
+import 'services/firebase_service.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -25,14 +21,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  FirebaseMessaging messaging = FirebaseService().getMessaging();
   NotificationSettings settings = await messaging.requestPermission(
     alert: true,
     badge: true,
     sound: true,
   );
-
-  _syncDevice(messaging);
 
   if (settings.authorizationStatus == AuthorizationStatus.authorized) {
     _startPushNotificationsHandler();
@@ -67,27 +61,6 @@ Future<void> _firebaseMessagingBackground(RemoteMessage message) async {
   print("Mensagem em background: ${message.data}");
 }
 
-void _syncDevice(FirebaseMessaging messaging) async {
-  final SharedPreferencesProvider provider = SharedPreferencesProvider();
-
-  final String? userId = await provider.getStringValue("userId");
-
-  if (userId != null) {
-    String? token = await messaging.getToken();
-
-    await provider.putStringValue(
-      'cloudToken',
-      token!,
-    );
-
-    final DeviceProvider deviceProvider = DeviceProvider();
-    final Device device = await deviceProvider.getDeviceInfos(token!);
-
-    final UserClient client = UserClient();
-    await client.syncDevide(userId, device);
-  }
-}
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -112,8 +85,10 @@ class Controller extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseService firebaseService = FirebaseService();
+
     return StreamBuilder(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: firebaseService.getFirebaseAuthInstance().authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
