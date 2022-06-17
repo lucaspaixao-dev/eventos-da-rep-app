@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class PopularEventTile extends StatefulWidget {
-  String desc;
-  String date;
-  String address;
-  String imgeAssetPath;
+  final String desc;
+  final String date;
+  final String address;
+  final String imgeAssetPath;
 
   /// later can be changed with imgUrl
-  PopularEventTile(
+  const PopularEventTile(
       {Key? key,
       required this.address,
       required this.date,

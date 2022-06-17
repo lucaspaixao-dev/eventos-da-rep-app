@@ -1,4 +1,3 @@
-import 'package:eventos_da_rep/screens/login/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../exceptions/exceptions.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_snack_bar.dart';
+import '../../widgets/loader.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({Key? key}) : super(key: key);
@@ -214,7 +214,7 @@ class _CreateAccountState extends State<CreateAccount> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               )
-                            : _getLoader(),
+                            : const Loader(),
                       ),
                     ],
                   ),
@@ -228,12 +228,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     minimumSize: const Size.fromHeight(50), // NEW
                   ),
                   onPressed: () => {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Login(),
-                      ),
-                    ),
+                    Navigator.pop(context),
                   },
                   child: const Text(
                     "Voltar",
@@ -310,13 +305,4 @@ class _CreateAccountState extends State<CreateAccount> {
       }
     }
   }
-
-  Widget _getLoader() => const SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(
-          color: Colors.white,
-          strokeWidth: 1.5,
-        ),
-      );
 }

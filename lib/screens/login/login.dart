@@ -20,11 +20,11 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    FlutterNativeSplash.remove();
   }
 
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     return Scaffold(
       body: Stack(
         children: <Widget>[
@@ -89,7 +89,7 @@ class _LoginState extends State<Login> {
                     } on ApiException catch (e) {
                       SnackBar snackBar = buildErrorSnackBar(e.cause);
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    } on Exception catch (e) {
+                    } on Exception catch (_) {
                       SnackBar snackBar = buildErrorSnackBar(
                           "Ocorreu um erro ao conectar ao Google, tente novamente mais tarde.");
                       ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -98,7 +98,7 @@ class _LoginState extends State<Login> {
                 ),
                 SignInButton(
                   Buttons.Email,
-                  text: "Faça login com seu e-mail",
+                  text: "Use seu e-mail",
                   onPressed: () {
                     Navigator.push(
                       context,

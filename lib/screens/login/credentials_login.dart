@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_snack_bar.dart';
+import '../../widgets/loader.dart';
 
 class CredentialsLogin extends StatefulWidget {
   const CredentialsLogin({Key? key}) : super(key: key);
@@ -176,7 +177,7 @@ class _CredentialsLoginState extends State<CredentialsLogin> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               )
-                            : _getLoader(),
+                            : const Loader(),
                       ),
                     ],
                   ),
@@ -206,62 +207,62 @@ class _CredentialsLoginState extends State<CredentialsLogin> {
                 const SizedBox(
                   height: 14,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      "Não possuí uma conta? ",
-                      style: TextStyle(
-                        color: Colors.white,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CreateAccount(),
                       ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CreateAccount(),
-                          ),
-                        );
-                      },
-                      child: const Text(
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const <Widget>[
+                      Text(
+                        "Não possuí uma conta? ",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
                         "Clique aqui",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
-                      ),
-                    )
-                  ],
+                      )
+                    ],
+                  ),
                 ),
                 const SizedBox(
                   height: 12,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    const Text(
-                      "Esqueceu sua senha? ",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ForgetPassword(),
-                          ),
-                        );
-                      },
-                      child: const Text(
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgetPassword(),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const <Widget>[
+                      Text(
+                        "Esqueceu sua senha? ",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
                         "Clique aqui",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -327,13 +328,4 @@ class _CredentialsLoginState extends State<CredentialsLogin> {
       }
     }
   }
-
-  Widget _getLoader() => const SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(
-          color: Colors.white,
-          strokeWidth: 1.5,
-        ),
-      );
 }

@@ -38,9 +38,9 @@ class Event {
       List<String> currentUsers = [];
 
       if (users != null) {
-        users.forEach((element) {
-          currentUsers.add(element['id']);
-        });
+        for (var user in users) {
+          currentUsers.add(user['id']);
+        }
       }
 
       return currentUsers;

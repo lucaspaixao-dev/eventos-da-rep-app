@@ -33,7 +33,7 @@ void main() async {
   } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
     _startPushNotificationsHandler();
   } else {
-    print("Usuário não deu permissão para notificações");
+    debugPrint("Usuário não deu permissão para notificações");
   }
 
   if (Platform.isAndroid) {
@@ -45,10 +45,10 @@ void main() async {
 
 void _startPushNotificationsHandler() async {
   FirebaseMessaging.onMessage.listen((event) {
-    print("Mensagem recebida: ${event.data}");
+    debugPrint("Mensagem recebida: ${event.data}");
 
     if (event.notification != null) {
-      print(
+      debugPrint(
         "Mensagem com notificação: ${event.notification!.title}, ${event.notification!.body}",
       );
     }
@@ -58,7 +58,7 @@ void _startPushNotificationsHandler() async {
 }
 
 Future<void> _firebaseMessagingBackground(RemoteMessage message) async {
-  print("Mensagem em background: ${message.data}");
+  debugPrint("Mensagem em background: ${message.data}");
 }
 
 class MyApp extends StatelessWidget {

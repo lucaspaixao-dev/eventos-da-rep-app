@@ -1,4 +1,4 @@
-import 'package:eventos_da_rep/screens/login/login.dart';
+import 'package:eventos_da_rep/widgets/loader.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -185,7 +185,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               )
-                            : _getLoader(),
+                            : const Loader(),
                       ),
                     ],
                   ),
@@ -199,12 +199,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                     minimumSize: const Size.fromHeight(50), // NEW
                   ),
                   onPressed: () => {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Login(),
-                      ),
-                    ),
+                    Navigator.pop(context),
                   },
                   child: const Text(
                     "Voltar",
@@ -234,13 +229,4 @@ class _ForgetPasswordState extends State<ForgetPassword> {
 
     await authService.sendForgotPasswordEmail(emailController.text);
   }
-
-  Widget _getLoader() => const SizedBox(
-        width: 16,
-        height: 16,
-        child: CircularProgressIndicator(
-          color: Colors.white,
-          strokeWidth: 1.5,
-        ),
-      );
 }
