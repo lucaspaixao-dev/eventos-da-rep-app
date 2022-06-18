@@ -32,6 +32,7 @@ dependencies:
   flutter_launcher_icons:
   map_launcher: ^2.2.3
   flutter_svg: ^1.1.0
+  firebase_crashlytics: ^2.8.2
 
 dev_dependencies:
   flutter_test:
