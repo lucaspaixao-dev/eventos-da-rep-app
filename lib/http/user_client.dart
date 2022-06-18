@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:eventos_da_rep/config/environment.dart';
 import 'package:eventos_da_rep/exceptions/exceptions.dart';
 import 'package:eventos_da_rep/models/device.dart';
 import "package:http/http.dart" as http;
@@ -7,14 +7,7 @@ import "package:http/http.dart" as http;
 import '../models/user.dart';
 
 class UserClient {
-  late final String url;
-
-  UserClient() {
-    url = Platform.isAndroid
-        ? "http://10.0.2.2:8080"
-        : //"http://localhost:8080";
-        "http://192.168.15.3:8080";
-  }
+  final String url = Environment().config!.apiHost;
 
   Future<String> createUser(User user) async {
     try {
@@ -41,11 +34,18 @@ class UserClient {
       if (response.statusCode == 201) {
         final json = jsonDecode(response.body);
         return json['id'];
+      }
+      if (response.statusCode == 403) {
+        throw ApiException(
+          "Você não possuí um convite para acessar o app, por favor entre em contato com a admistração.",
+        );
       } else {
         throw ApiException(
           "Erro para criar um novo usuário, tente novamente mais tarde.",
         );
       }
+    } on ApiException {
+      rethrow;
     } catch (e) {
       throw ApiException(
         "Erro para criar um novo usuário, tente novamente mais tarde.",

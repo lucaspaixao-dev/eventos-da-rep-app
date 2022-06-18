@@ -2,13 +2,15 @@ import 'dart:async';
 
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
-import 'package:eventos_da_rep/screens/event_details/components/map.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:map_launcher/map_launcher.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../helpers/date_helper.dart';
 import '../../helpers/string_helper.dart';
 import '../../providers/shared_preferences_provider.dart';
+import '../../widgets/app_snack_bar.dart';
 import '../../widgets/loader.dart';
 
 class EventDetails extends StatefulWidget {
@@ -188,13 +190,11 @@ class _EventDetailsState extends State<EventDetails> {
                               children: [
                                 ElevatedButton(
                                   onPressed: () {
-                                    showCupertinoModalBottomSheet(
-                                      context: context,
-                                      builder: (_) => Map(
-                                        id: widget.event.id,
-                                        latitude: widget.event.latitude,
-                                        longitude: widget.event.longitude,
-                                      ),
+                                    openMapsSheet(
+                                      context,
+                                      widget.event.latitude,
+                                      widget.event.longitude,
+                                      widget.event.title,
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -352,5 +352,48 @@ class _EventDetailsState extends State<EventDetails> {
         );
       },
     );
+  }
+
+  openMapsSheet(
+    BuildContext context,
+    double lat,
+    double long,
+    String title,
+  ) async {
+    try {
+      final coords = Coords(lat, long);
+      final availableMaps = await MapLauncher.installedMaps;
+
+      showMaterialModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Wrap(
+                children: <Widget>[
+                  for (var map in availableMaps)
+                    ListTile(
+                      onTap: () => map.showMarker(
+                        coords: coords,
+                        title: title,
+                      ),
+                      title: Text(map.mapName),
+                      leading: SvgPicture.asset(
+                        map.icon,
+                        height: 30.0,
+                        width: 30.0,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    } catch (_) {
+      SnackBar snackBar = buildErrorSnackBar(
+          "Ocorreu um erro ao abrir o mapa, tente novamente mais tarde.");
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 }

@@ -1,19 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
 import "package:http/http.dart" as http;
 
+import '../config/environment.dart';
 import '../exceptions/exceptions.dart';
 import '../models/event.dart';
 
 class EventClient {
-  late final String url;
-
-  EventClient() {
-    url = Platform.isAndroid
-        ? "http://10.0.2.2:8080"
-        : //"http://localhost:8080";
-        "http://192.168.15.3:8080";
-  }
+  final String url = Environment().config!.apiHost;
 
   Future<List<Event>> getEvents(int pageKey, int pageSize) async {
     try {

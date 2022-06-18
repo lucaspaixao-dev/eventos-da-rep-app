@@ -37,6 +37,6 @@ SnackBar buildErrorSnackBar(String message) {
     message: message,
     isSuccess: false,
     elevation: 10.0,
-    duration: const Duration(milliseconds: 2000),
+    duration: const Duration(milliseconds: 3000),
   ).buildSnackBar();
 }
