@@ -163,11 +163,12 @@ class _CredentialsLoginState extends State<CredentialsLogin> {
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blue,
                           minimumSize: const Size.fromHeight(50), // NEW
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
                         ),
-                        onPressed: () async {
-                          await _validateAndLogin()
-                              .then((value) => Navigator.of(context).pop());
-                        },
+                        onPressed: () =>
+                            _isLoading ? null : _validateAndLogin(),
                         child: !_isLoading
                             ? const Text(
                                 "Entrar",
@@ -189,12 +190,15 @@ class _CredentialsLoginState extends State<CredentialsLogin> {
                   style: ElevatedButton.styleFrom(
                     primary: Colors.white,
                     minimumSize: const Size.fromHeight(50), // NEW
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
                   ),
-                  onPressed: () => {
-                    Navigator.pop(
-                      context,
-                    )
-                  },
+                  onPressed: () => _isLoading
+                      ? null
+                      : Navigator.pop(
+                          context,
+                        ),
                   child: const Text(
                     "Voltar",
                     style: TextStyle(
@@ -272,60 +276,76 @@ class _CredentialsLoginState extends State<CredentialsLogin> {
     );
   }
 
-  Future<void> _validateAndLogin() async {
-    SnackBar? snackBar;
-
+  _validateAndLogin() async {
     if (_formKey.currentState!.validate()) {
       final authService = Provider.of<AuthProvider>(
         context,
         listen: false,
       );
+      setState(() {
+        _isLoading = true;
+      });
 
-      try {
-        setState(() {
-          _isLoading = true;
-        });
+      String email = emailController.text;
+      String password = passwordController.text;
 
-        String email = emailController.text;
-        String password = passwordController.text;
-
-        await authService.emailAndPasswordSignIn(
-          email,
-          password,
-        );
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'invalid-email') {
-          snackBar = buildErrorSnackBar(
-            "E-mail inválido.",
+      SnackBar snackBar;
+      await authService
+          .emailAndPasswordSignIn(
+            email,
+            password,
+          )
+          .then((value) => Navigator.pop(context))
+          .catchError(
+              (e) => {
+                    if (e.code == 'invalid-email')
+                      {
+                        snackBar = buildErrorSnackBar(
+                          "E-mail inválido.",
+                        )
+                      }
+                    else if (e.code == 'user-disabled')
+                      {
+                        snackBar = buildErrorSnackBar(
+                          "Usuário desativado.",
+                        )
+                      }
+                    else if (e.code == 'user-not-found')
+                      {
+                        snackBar = buildErrorSnackBar(
+                          "Usuário não encontrado.",
+                        )
+                      }
+                    else
+                      {
+                        snackBar = buildErrorSnackBar(
+                          "Ocorreu um erro, tente novamente.",
+                        )
+                      },
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                  },
+              test: (e) => e is FirebaseAuthException)
+          .catchError(
+              (e) => {
+                    snackBar = buildErrorSnackBar(
+                      e.cause,
+                    ),
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                  },
+              test: (e) => e is ApiException)
+          .catchError(
+              (e) => {
+                    snackBar = buildErrorSnackBar(
+                      "Ocorreu um erro ao tentar criar sua conta. Tente novamente mais tarde.",
+                    ),
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                  },
+              test: (e) => e is Exception)
+          .whenComplete(
+            () => setState(() {
+              _isLoading = false;
+            }),
           );
-        } else if (e.code == 'user-disabled') {
-          snackBar = buildErrorSnackBar(
-            "Usuário desativado.",
-          );
-        } else if (e.code == 'user-not-found') {
-          snackBar = buildErrorSnackBar(
-            "Usuário não encontrado.",
-          );
-        }
-
-        if (snackBar != null) {
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        }
-      } on ApiException catch (e) {
-        snackBar = buildErrorSnackBar(
-          e.cause,
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } catch (_) {
-        snackBar = buildErrorSnackBar(
-          "Ocorreu um erro ao tentar fazer login. Tente novamente mais tarde.",
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
 }

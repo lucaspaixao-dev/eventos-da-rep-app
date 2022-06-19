@@ -199,12 +199,12 @@ class _CreateAccountState extends State<CreateAccount> {
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blue,
                           minimumSize: const Size.fromHeight(50), // NEW
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
                         ),
-                        onPressed: () async {
-                          _validateAndCreateAccount().then(
-                            (value) => Navigator.pop(context),
-                          );
-                        },
+                        onPressed: () =>
+                            _isLoading ? null : _validateAndCreateAccount(),
                         child: !_isLoading
                             ? const Text(
                                 "Criar conta",
@@ -226,10 +226,11 @@ class _CreateAccountState extends State<CreateAccount> {
                   style: ElevatedButton.styleFrom(
                     primary: Colors.white,
                     minimumSize: const Size.fromHeight(50), // NEW
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
                   ),
-                  onPressed: () => {
-                    Navigator.pop(context),
-                  },
+                  onPressed: () => _isLoading ? null : Navigator.pop(context),
                   child: const Text(
                     "Voltar",
                     style: TextStyle(
@@ -247,62 +248,74 @@ class _CreateAccountState extends State<CreateAccount> {
     );
   }
 
-  Future<void> _validateAndCreateAccount() async {
-    SnackBar? snackBar;
-
+  _validateAndCreateAccount() async {
     if (_formKey.currentState!.validate()) {
       final authService = Provider.of<AuthProvider>(
         context,
         listen: false,
       );
+      setState(() {
+        _isLoading = true;
+      });
 
-      try {
-        setState(() {
-          _isLoading = true;
-        });
+      String email = emailController.text;
+      String password = passwordController.text;
+      String name = nameController.text;
 
-        String email = emailController.text;
-        String password = passwordController.text;
-        String name = nameController.text;
-
-        await authService.emailAndPasswordCreate(
-          name,
-          email,
-          password,
-        );
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'invalid-email') {
-          snackBar = buildErrorSnackBar(
-            "E-mail inválido.",
+      SnackBar snackBar;
+      await authService
+          .emailAndPasswordCreate(name, email, password)
+          .then((value) => Navigator.pop(context))
+          .catchError(
+              (e) => {
+                    if (e.code == 'invalid-email')
+                      {
+                        snackBar = buildErrorSnackBar(
+                          "E-mail inválido.",
+                        )
+                      }
+                    else if (e.code == 'weak-password')
+                      {
+                        snackBar = buildErrorSnackBar(
+                          "Senha muito fraca.",
+                        )
+                      }
+                    else if (e.code == 'email-already-in-use')
+                      {
+                        snackBar = buildErrorSnackBar(
+                          "E-mail já cadastrado.",
+                        )
+                      }
+                    else
+                      {
+                        snackBar = buildErrorSnackBar(
+                          "Ocorreu um erro, tente novamente.",
+                        )
+                      },
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                  },
+              test: (e) => e is FirebaseAuthException)
+          .catchError(
+              (e) => {
+                    snackBar = buildErrorSnackBar(
+                      e.cause,
+                    ),
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                  },
+              test: (e) => e is ApiException)
+          .catchError(
+              (e) => {
+                    snackBar = buildErrorSnackBar(
+                      "Ocorreu um erro ao tentar criar sua conta. Tente novamente mais tarde.",
+                    ),
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                  },
+              test: (e) => e is Exception)
+          .whenComplete(
+            () => setState(() {
+              _isLoading = false;
+            }),
           );
-        } else if (e.code == 'weak-password') {
-          snackBar = buildErrorSnackBar(
-            "Senha muito fraca.",
-          );
-        } else if (e.code == 'email-already-in-use') {
-          snackBar = buildErrorSnackBar(
-            "E-mail já cadastrado.",
-          );
-        }
-
-        if (snackBar != null) {
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        }
-      } on ApiException catch (e) {
-        snackBar = buildErrorSnackBar(
-          e.cause,
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } catch (_) {
-        snackBar = buildErrorSnackBar(
-          "Ocorreu um erro ao tentar criar sua conta. Tente novamente mais tarde.",
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
-      }
     }
   }
 }

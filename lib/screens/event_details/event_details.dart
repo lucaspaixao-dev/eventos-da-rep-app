@@ -43,6 +43,9 @@ class _EventDetailsState extends State<EventDetails> {
   }
 
   void _going(String userId) {
+    setState(() {
+      _isLoading = true;
+    });
     _userClient.going(userId, widget.event.id).then((_) {
       setState(() {
         _isLoading = false;
@@ -70,6 +73,9 @@ class _EventDetailsState extends State<EventDetails> {
   }
 
   void _cancel(String userId) {
+    setState(() {
+      _isLoading = true;
+    });
     _userClient.cancel(userId, widget.event.id).then((_) {
       setState(() {
         _isLoading = false;
@@ -210,17 +216,18 @@ class _EventDetailsState extends State<EventDetails> {
                                   width: 10,
                                 ),
                                 ElevatedButton(
-                                  onPressed: () async {
-                                    setState(() {
-                                      _isLoading = true;
-                                    });
-
-                                    if (!isGoing) {
-                                      _going(id!);
-                                    } else {
-                                      _cancel(id!);
-                                    }
-                                  },
+                                  onPressed: () => _isLoading
+                                      ? null
+                                      : {
+                                          if (!isGoing)
+                                            {
+                                              _going(id!),
+                                            }
+                                          else
+                                            {
+                                              _cancel(id!),
+                                            }
+                                        },
                                   style: ElevatedButton.styleFrom(
                                     primary:
                                         !isGoing ? Colors.green : Colors.red,

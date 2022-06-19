@@ -119,12 +119,15 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blue,
                           minimumSize: const Size.fromHeight(50), // NEW
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
                         ),
                         onPressed: () async {
-                          setState(() {
-                            isLoading = true;
-                          });
                           if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              isLoading = true;
+                            });
                             SnackBar snackBar;
                             await _sendEmail()
                                 .then((_) => {
@@ -171,10 +174,14 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(snackBar)
                                   },
+                                )
+                                .whenComplete(
+                                  () => setState(
+                                    () {
+                                      isLoading = false;
+                                    },
+                                  ),
                                 );
-                            setState(() {
-                              isLoading = false;
-                            });
                           }
                         },
                         child: !isLoading
@@ -198,10 +205,11 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                   style: ElevatedButton.styleFrom(
                     primary: Colors.white,
                     minimumSize: const Size.fromHeight(50), // NEW
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
                   ),
-                  onPressed: () => {
-                    Navigator.pop(context),
-                  },
+                  onPressed: () => isLoading ? null : Navigator.pop(context),
                   child: const Text(
                     "Voltar",
                     style: TextStyle(
