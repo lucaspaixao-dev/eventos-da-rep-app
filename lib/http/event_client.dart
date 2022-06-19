@@ -3,12 +3,21 @@ import "package:http/http.dart" as http;
 
 import '../config/environment.dart';
 import '../exceptions/exceptions.dart';
+import '../helpers/internet_helper.dart';
 import '../models/event.dart';
 
 class EventClient {
   final String url = Environment().config!.apiHost;
 
   Future<List<Event>> getEvents(int pageKey, int pageSize) async {
+    final hasInternet = await checkInternetConnection();
+
+    if (!hasInternet) {
+      throw Exception(
+        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
+      );
+    }
+
     try {
       final response = await http.get(
         Uri.parse("$url/events/actives?page=$pageKey&size=$pageSize"),

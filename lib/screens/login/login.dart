@@ -5,6 +5,7 @@ import 'package:flutter_signin_button/button_list.dart';
 import 'package:flutter_signin_button/button_view.dart';
 import 'package:provider/provider.dart';
 
+import '../../helpers/internet_helper.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_snack_bar.dart';
 import 'credentials_login.dart';
@@ -25,6 +26,16 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
+    checkInternetConnection().then(
+      (value) {
+        if (!value) {
+          SnackBar snackBar = buildErrorSnackBar(
+              "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.");
+
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      },
+    );
     return Scaffold(
       body: Stack(
         children: <Widget>[

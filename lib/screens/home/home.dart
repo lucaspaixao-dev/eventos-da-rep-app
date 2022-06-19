@@ -156,7 +156,7 @@ class _HomeState extends State<Home> {
                   height: 20,
                 ),
                 SizedBox(
-                  height: mediaQuery.size.height * 0.68,
+                  height: mediaQuery.size.height * 0.64,
                   child: RefreshIndicator(
                     onRefresh: () => Future.sync(
                       () => _pagingController.refresh(),

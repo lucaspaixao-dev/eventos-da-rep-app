@@ -26,9 +26,6 @@ class EventDetails extends StatefulWidget {
 }
 
 class _EventDetailsState extends State<EventDetails> {
-  final Future<String?> _userId =
-      SharedPreferencesProvider().getStringValue('userId');
-
   final _userClient = UserClient();
 
   bool _isLoading = false;
@@ -103,7 +100,7 @@ class _EventDetailsState extends State<EventDetails> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     return FutureBuilder<String?>(
-      future: _userId,
+      future: SharedPreferencesProvider().getStringValue('userId'),
       builder: (context, snapshot) {
         final String? id = snapshot.data;
         final isGoing = checkIfUserIsGoing(id);
@@ -329,7 +326,7 @@ class _EventDetailsState extends State<EventDetails> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 SizedBox(
-                                  width: mediaQuery.size.width * 0.89,
+                                  width: mediaQuery.size.width * 0.86,
                                   child: Text(
                                     widget.event.description,
                                     style: const TextStyle(

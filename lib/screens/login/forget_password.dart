@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../helpers/internet_helper.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_snack_bar.dart';
 
@@ -222,11 +223,20 @@ class _ForgetPasswordState extends State<ForgetPassword> {
   }
 
   Future<void> _sendEmail() async {
-    final authService = Provider.of<AuthProvider>(
-      context,
-      listen: false,
-    );
+    final hasInternet = await checkInternetConnection();
 
-    await authService.sendForgotPasswordEmail(emailController.text);
+    if (hasInternet) {
+      final authService = Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      );
+
+      await authService.sendForgotPasswordEmail(emailController.text);
+    } else {
+      SnackBar snackBar = buildErrorSnackBar(
+          "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.");
+
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 }

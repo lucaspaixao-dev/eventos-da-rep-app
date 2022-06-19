@@ -4,12 +4,21 @@ import 'package:eventos_da_rep/exceptions/exceptions.dart';
 import 'package:eventos_da_rep/models/device.dart';
 import "package:http/http.dart" as http;
 
+import '../helpers/internet_helper.dart';
 import '../models/user.dart';
 
 class UserClient {
   final String url = Environment().config!.apiHost;
 
   Future<String> createUser(User user) async {
+    final hasInternet = await checkInternetConnection();
+
+    if (!hasInternet) {
+      throw Exception(
+        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
+      );
+    }
+
     try {
       var request = {
         'name': user.name,
@@ -54,6 +63,14 @@ class UserClient {
   }
 
   Future<void> syncDevide(String userId, Device device) async {
+    final hasInternet = await checkInternetConnection();
+
+    if (!hasInternet) {
+      throw Exception(
+        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
+      );
+    }
+
     try {
       var request = {
         'brand': device.brand,
@@ -81,6 +98,14 @@ class UserClient {
   }
 
   Future<User> findByEmail(String email) async {
+    final hasInternet = await checkInternetConnection();
+
+    if (!hasInternet) {
+      throw Exception(
+        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
+      );
+    }
+
     try {
       final response = await http.get(
         Uri.parse("$url/users/email/$email"),
@@ -102,6 +127,14 @@ class UserClient {
   }
 
   Future<void> going(String userId, String eventId) async {
+    final hasInternet = await checkInternetConnection();
+
+    if (!hasInternet) {
+      throw Exception(
+        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
+      );
+    }
+
     try {
       final response = await http
           .put(Uri.parse("$url/events/$eventId/users/$userId/accept"));
@@ -118,6 +151,14 @@ class UserClient {
   }
 
   Future<void> cancel(String userId, String eventId) async {
+    final hasInternet = await checkInternetConnection();
+
+    if (!hasInternet) {
+      throw Exception(
+        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
+      );
+    }
+
     try {
       final response = await http
           .put(Uri.parse("$url/events/$eventId/users/$userId/disavow"));
