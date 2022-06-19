@@ -13,7 +13,7 @@ class EventClient {
     final hasInternet = await checkInternetConnection();
 
     if (!hasInternet) {
-      throw Exception(
+      throw InternetException(
         "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
       );
     }
