@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:eventos_da_rep/config/environment.dart';
 import 'package:eventos_da_rep/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,6 +25,7 @@ void main() async {
 
   //FirebaseCrashlytics.instance.crash();
   if (kDebugMode) {
+    HttpOverrides.global = MyHttpOverrides();
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
 
@@ -109,5 +112,14 @@ class Controller extends StatelessWidget {
         }
       },
     );
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

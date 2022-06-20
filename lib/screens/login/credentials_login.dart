@@ -30,6 +30,7 @@ class _CredentialsLoginState extends State<CredentialsLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: <Widget>[
           Container(

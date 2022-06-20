@@ -7,12 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:provider/provider.dart';
 
 import '../../helpers/date_helper.dart';
 import '../../helpers/string_helper.dart';
 import '../../http/event_client.dart';
 import '../../http/user_client.dart';
 import '../../models/device.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/device_provider.dart';
 import '../../providers/shared_preferences_provider.dart';
 import '../../services/firebase_service.dart';
@@ -42,7 +44,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    super.initState();
+    _verifyUserPreferences();
 
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
@@ -60,6 +62,22 @@ class _HomeState extends State<Home> {
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     });
+
+    super.initState();
+  }
+
+  _verifyUserPreferences() async {
+    String? userId = await sharedPreferencesProvider.getStringValue("userId");
+
+    if (userId == null) {
+      // ignore: use_build_context_synchronously
+      final authService = Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      );
+
+      await authService.logout();
+    }
   }
 
   @override
