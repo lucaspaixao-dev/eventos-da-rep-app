@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>922896371036-rp8ebm5jdqubbbp04uiva3hq02khefl1.apps.googleusercontent.com</string>
+	<string>922896371036-787psid43noe359f7csq2rpom5at5jrt.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.922896371036-rp8ebm5jdqubbbp04uiva3hq02khefl1</string>
+	<string>com.googleusercontent.apps.922896371036-787psid43noe359f7csq2rpom5at5jrt</string>
 	<key>ANDROID_CLIENT_ID</key>
-	<string>922896371036-rs91th6ge9prl6bt9o2eh2j7q8bcd7cj.apps.googleusercontent.com</string>
+	<string>922896371036-r0tc1d5ba1sm194eld1l1lr5gm19m2m8.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDbFGzBAYxUk-Nq82rnNFp_fN4AtDY-Fk4</string>
 	<key>GCM_SENDER_ID</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.eventosDaRep</string>
+	<string>io.github.xuenqui.eventosdarepapp</string>
 	<key>PROJECT_ID</key>
 	<string>eventos-da-rep</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:922896371036:ios:ad4ed3a7725b045f7ec599</string>
+	<string>1:922896371036:ios:6ae3a49a5c866db37ec599</string>
 </dict>
 </plist>
