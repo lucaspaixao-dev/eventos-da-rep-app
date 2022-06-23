@@ -76,9 +76,9 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.922896371036-787psid43noe359f7csq2rpom5at5jrt</string>
+				<string>$(GOOGLE_SERVICE_REVERSED_CLIENT_ID)</string>
 			</array>
 		</dict>
-	</array>	
+	</array>
 </dict>
 </plist>

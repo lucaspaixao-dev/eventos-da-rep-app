@@ -5,12 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "eventos_da_rep",
+            "name": "Eventos da REP DEV",
             "request": "launch",
             "type": "dart",
             "args":[
 				"--dart-define",
-                "ENV=DEV"
+                "ENV=DEV",
+                "--flavor",
+                "dev"
+			]
+        },
+        {
+            "name": "Eventos da REP PROD",
+            "request": "launch",
+            "type": "dart",
+            "args":[
+				"--dart-define",
+                "ENV=PROD",
+                "--flavor",
+                "prod"
 			]
         }
     ]

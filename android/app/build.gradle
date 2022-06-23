@@ -78,6 +78,20 @@ android {
        }
    }
 
+    flavorDimensions "env"
+    
+    productFlavors {
+        dev {
+            dimension "env"
+            applicationId "io.github.com.xuenqui.eventosdarepdev"
+            versionNameSuffix "-dev"
+        }
+        prod {
+            dimension "env"
+            applicationId "io.github.com.xuenqui.eventosdarep"
+        }
+    }
+
 }
 
 flutter {

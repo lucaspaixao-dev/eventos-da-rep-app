@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "796029474499",
+    "project_id": "eventos-da-rep-dev",
+    "storage_bucket": "eventos-da-rep-dev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:796029474499:android:ff3e73a000e74a84463476",
+        "android_client_info": {
+          "package_name": "io.github.com.xuenqui.eventosdarepdev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "796029474499-uaf06t4ch7uc0ttof9e15tcpg2v8t4bj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC00b3QM38_xxuDQlBlxttlN1UZYNPE_EU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "796029474499-uaf06t4ch7uc0ttof9e15tcpg2v8t4bj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "796029474499-ifr4849dlvn3lv1l1jvjaguo4sm44u9j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.github.com.xuenqui.eventosdarepdev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
