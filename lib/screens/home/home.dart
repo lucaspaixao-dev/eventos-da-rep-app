@@ -7,14 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:provider/provider.dart';
 
 import '../../helpers/date_helper.dart';
 import '../../helpers/string_helper.dart';
 import '../../http/event_client.dart';
 import '../../http/user_client.dart';
 import '../../models/device.dart';
-import '../../providers/auth_provider.dart';
+import '../../models/user.dart';
 import '../../providers/device_provider.dart';
 import '../../providers/shared_preferences_provider.dart';
 import '../../services/firebase_service.dart';
@@ -31,6 +30,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final eventClient = EventClient();
+  final userClient = UserClient();
   final FirebaseService firebaseService = FirebaseService();
   final authUser = FirebaseService().getAuthUser();
   final firebaseMessaging = FirebaseService().getMessaging();
@@ -67,16 +67,11 @@ class _HomeState extends State<Home> {
   }
 
   _verifyUserPreferences() async {
-    String? userId = await sharedPreferencesProvider.getStringValue("userId");
+    String? userId = await sharedPreferencesProvider.getStringValue(prefUserId);
 
     if (userId == null) {
-      // ignore: use_build_context_synchronously
-      final authService = Provider.of<AuthProvider>(
-        context,
-        listen: false,
-      );
-
-      await authService.logout();
+      final User user = await userClient.findByEmail(authUser!.email!);
+      await sharedPreferencesProvider.putStringValue(prefUserId, user.id!);
     }
   }
 
@@ -94,7 +89,7 @@ class _HomeState extends State<Home> {
               photo: snapshot.data!.photo,
             );
           } else {
-            return const Text("just running");
+            return const Text("");
           }
         },
       ),
@@ -140,16 +135,20 @@ class _HomeState extends State<Home> {
                           future: _getName(),
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
-                              return Text(
-                                "Olá, ${snapshot.data}!",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 22,
+                              String? data = snapshot.data;
+                              return SizedBox(
+                                width: mediaQuery.size.width * 0.80,
+                                child: Text(
+                                  "Olá, $data!",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 22,
+                                  ),
                                 ),
                               );
                             } else {
-                              return const Text("just running");
+                              return const Text("");
                             }
                           },
                         ),
@@ -274,7 +273,7 @@ class _HomeState extends State<Home> {
       String? token = await firebaseMessaging.getToken();
 
       await provider.putStringValue(
-        'cloudToken',
+        prefCloudToken,
         token!,
       );
 
@@ -289,7 +288,7 @@ class _HomeState extends State<Home> {
 
         String apiToken = await firebaseService.getAuthUser()!.getIdToken();
         await provider.putStringValue(
-          'apiToken',
+          prefApiToken,
           apiToken,
         );
       } catch (_) {
@@ -303,7 +302,7 @@ class _HomeState extends State<Home> {
       return authUser!.displayName!;
     }
 
-    String? name = await sharedPreferencesProvider.getStringValue("name");
+    String? name = await sharedPreferencesProvider.getStringValue(prefUserName);
     if (name != null) {
       return name;
     }
@@ -320,9 +319,9 @@ class _HomeState extends State<Home> {
       );
     }
 
-    String? name = await sharedPreferencesProvider.getStringValue("name");
+    String? name = await sharedPreferencesProvider.getStringValue(prefUserName);
     String? photoUrl =
-        await sharedPreferencesProvider.getStringValue("photoUrl");
+        await sharedPreferencesProvider.getStringValue(prefUserPhotoUrl);
 
     if (name != null && photoUrl != null) {
       await authUser?.updateDisplayName(name);

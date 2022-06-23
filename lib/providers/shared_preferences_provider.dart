@@ -13,3 +13,10 @@ class SharedPreferencesProvider {
     return pref.getString(key);
   }
 }
+
+const String prefApiToken = 'apiToken';
+const String prefCloudToken = 'cloudToken';
+const String prefUserId = 'userId';
+const String prefUserName = 'name';
+const String prefUserEmail = 'email';
+const String prefUserPhotoUrl = 'photoUrl';

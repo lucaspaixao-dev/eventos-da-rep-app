@@ -1,3 +1,5 @@
+import 'package:eventos_da_rep/models/device.dart';
+import 'package:eventos_da_rep/models/user.dart';
 import 'package:intl/intl.dart';
 
 class Event {
@@ -13,7 +15,7 @@ class Event {
   final DateTime begin;
   final DateTime end;
   final bool active;
-  final List<String> users;
+  final List<User> users;
   final DateTime createdAt;
 
   Event({
@@ -34,12 +36,20 @@ class Event {
   });
 
   factory Event.fromJson(dynamic json) {
-    List<String> _getUsersId(List<dynamic>? users) {
-      List<String> currentUsers = [];
+    List<User> _getUsersId(List<dynamic>? users) {
+      List<User> currentUsers = [];
 
       if (users != null) {
         for (var user in users) {
-          currentUsers.add(user['id']);
+          User u = User(
+            id: user['id'] as String,
+            name: user['name'] as String,
+            email: user['email'] as String,
+            photo: user['photo'] as String,
+            device: Device(token: "", brand: "", model: ""),
+            events: null,
+          );
+          currentUsers.add(u);
         }
       }
 

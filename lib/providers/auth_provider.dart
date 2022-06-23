@@ -73,17 +73,17 @@ class AuthProvider extends ChangeNotifier {
       );
 
       await _sharedPreferencesProvider.putStringValue(
-        'name',
+        prefUserName,
         name,
       );
 
       await _sharedPreferencesProvider.putStringValue(
-        'email',
+        prefUserEmail,
         email,
       );
 
       await _sharedPreferencesProvider.putStringValue(
-        'photoUrl',
+        prefUserPhotoUrl,
         photoUrl,
       );
 
@@ -93,7 +93,7 @@ class AuthProvider extends ChangeNotifier {
 
       String apiToken = await firebaseService.getAuthUser()!.getIdToken();
       await _sharedPreferencesProvider.putStringValue(
-        'apiToken',
+        prefApiToken,
         apiToken,
       );
 
@@ -116,18 +116,20 @@ class AuthProvider extends ChangeNotifier {
 
       project.User user = await _userClient.findByEmail(email);
       await _sharedPreferencesProvider.putStringValue(
-        'userId',
+        prefUserId,
         user.id!,
       );
       await _sharedPreferencesProvider.putStringValue(
-        'cloudToken',
+        prefCloudToken,
         user.device.token,
       );
-      String apiToken = await firebaseService.getAuthUser()!.getIdToken();
-      await _sharedPreferencesProvider.putStringValue(
-        'apiToken',
-        apiToken,
-      );
+
+      User? firebaseUser = firebaseService.getAuthUser();
+      if (firebaseUser != null) {
+        String apiToken = await firebaseUser.getIdToken();
+        await _sharedPreferencesProvider.putStringValue(prefApiToken, apiToken);
+      }
+
       notifyListeners();
     } catch (e) {
       firebaseService.getFirebaseAuthInstance().signOut();
@@ -179,11 +181,11 @@ class AuthProvider extends ChangeNotifier {
 
       final userId = await _userClient.createUser(newUser);
       await _sharedPreferencesProvider.putStringValue(
-        'userId',
+        prefUserId,
         userId,
       );
       await _sharedPreferencesProvider.putStringValue(
-        'cloudToken',
+        prefCloudToken,
         token,
       );
     } catch (e) {

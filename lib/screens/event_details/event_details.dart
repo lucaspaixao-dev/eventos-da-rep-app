@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
+import 'package:eventos_da_rep/screens/event_details/users_on_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -39,7 +40,15 @@ class _EventDetailsState extends State<EventDetails> {
       return false;
     }
 
-    return widget.event.users.contains(userId);
+    bool userIsGoing = false;
+
+    for (var user in widget.event.users) {
+      if (user.id == userId) {
+        userIsGoing = true;
+      }
+    }
+
+    return userIsGoing;
   }
 
   void _going(String userId) {
@@ -303,6 +312,90 @@ class _EventDetailsState extends State<EventDetails> {
                                   ),
                                 ),
                               ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.people,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                SizedBox(
+                                  width: mediaQuery.size.width * 0.80,
+                                  child: const Text(
+                                    "Veja quem confirmou presença:",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Visibility(
+                            visible: widget.event.users.isNotEmpty,
+                            child: InkWell(
+                              onTap: () {
+                                showCupertinoModalBottomSheet(
+                                  context: context,
+                                  builder: (context) => UsersOnEvent(
+                                    users: widget.event.users,
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: mediaQuery.size.width * 0.80,
+                                      height: mediaQuery.size.width * 0.15,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: widget.event.users.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              left: 8,
+                                            ),
+                                            child: CircleAvatar(
+                                              radius: 20,
+                                              backgroundImage: NetworkImage(
+                                                widget.event.users[index].photo,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Visibility(
+                            visible: widget.event.users.isEmpty,
+                            child: const Text(
+                              "Nenhum usuário confirmou presença 🥲",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                           Padding(
