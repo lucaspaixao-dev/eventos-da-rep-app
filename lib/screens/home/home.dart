@@ -266,33 +266,38 @@ class _HomeState extends State<Home> {
 
   Future<void> _syncDevice() async {
     final SharedPreferencesProvider provider = SharedPreferencesProvider();
-
-    final String? userId = await provider.getStringValue("userId");
+    final String? userId = await provider.getStringValue(prefUserId);
 
     if (userId != null) {
       String? token = await firebaseMessaging.getToken();
 
-      await provider.putStringValue(
-        prefCloudToken,
-        token!,
-      );
+      if (token != null) {
+        String? storageToken = await provider.getStringValue(prefCloudToken);
 
-      final DeviceProvider deviceProvider = DeviceProvider();
-      final Device device = await deviceProvider.getDeviceInfos(token);
+        if (storageToken == null || storageToken != token) {
+          await provider.putStringValue(
+            prefCloudToken,
+            token,
+          );
 
-      final UserClient client = UserClient();
+          final DeviceProvider deviceProvider = DeviceProvider();
+          final Device device = await deviceProvider.getDeviceInfos(token);
 
-      try {
-        await client.syncDevide(userId, device);
-        FirebaseService firebaseService = FirebaseService();
+          final UserClient client = UserClient();
 
-        String apiToken = await firebaseService.getAuthUser()!.getIdToken();
-        await provider.putStringValue(
-          prefApiToken,
-          apiToken,
-        );
-      } catch (_) {
-        rethrow;
+          try {
+            await client.syncDevide(userId, device);
+            FirebaseService firebaseService = FirebaseService();
+
+            String apiToken = await firebaseService.getAuthUser()!.getIdToken();
+            await provider.putStringValue(
+              prefApiToken,
+              apiToken,
+            );
+          } catch (_) {
+            rethrow;
+          }
+        }
       }
     }
   }

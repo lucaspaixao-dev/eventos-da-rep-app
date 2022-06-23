@@ -47,14 +47,11 @@ class NavigationDrawer extends StatelessWidget {
               const SizedBox(
                 height: 12,
               ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 0.35,
-                child: Text(
-                  name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                  ),
+              Text(
+                name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
                 ),
               ),
               Text(
