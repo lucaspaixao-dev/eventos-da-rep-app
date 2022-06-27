@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
+import 'package:eventos_da_rep/screens/event_chat/event_chat.dart';
 import 'package:eventos_da_rep/screens/event_details/users_on_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -51,7 +52,7 @@ class _EventDetailsState extends State<EventDetails> {
     return userIsGoing;
   }
 
-  void _going(String userId) {
+  void _going(String userId) async {
     setState(() {
       _isLoading = true;
     });
@@ -115,7 +116,7 @@ class _EventDetailsState extends State<EventDetails> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     return FutureBuilder<String?>(
-      future: SharedPreferencesProvider().getStringValue('userId'),
+      future: SharedPreferencesProvider().getStringValue(prefUserId),
       builder: (context, snapshot) {
         final String? id = snapshot.data;
         final isGoing = checkIfUserIsGoing(id);
@@ -251,6 +252,41 @@ class _EventDetailsState extends State<EventDetails> {
                                           : const Text('Cancelar Presença'),
                                 ),
                               ],
+                            ),
+                          ),
+                          Visibility(
+                            visible: isGoing,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return EventChat(
+                                            eventId: widget.event.id,
+                                            userId: id!,
+                                            eventName: widget.event.title,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      primary: Colors.indigo,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20.0),
+                                      ),
+                                    ),
+                                    child: const Text('Chat do evento'),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           Padding(
