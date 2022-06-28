@@ -48,6 +48,8 @@ class AuthProvider extends ChangeNotifier {
           .getFirebaseAuthInstance()
           .signInWithCredential(credential);
 
+      await FirebaseMessaging.instance.subscribeToTopic("users-topic");
+
       notifyListeners();
     } catch (e) {
       await _googleSignIn.disconnect();
@@ -98,6 +100,8 @@ class AuthProvider extends ChangeNotifier {
       );
 
       await firebaseService.getAuthUser()?.sendEmailVerification();
+
+      await FirebaseMessaging.instance.subscribeToTopic("users-topic");
       notifyListeners();
     } catch (e) {
       firebaseService.getFirebaseAuthInstance().signOut();
@@ -130,6 +134,7 @@ class AuthProvider extends ChangeNotifier {
         await _sharedPreferencesProvider.putStringValue(prefApiToken, apiToken);
       }
 
+      await FirebaseMessaging.instance.subscribeToTopic("users-topic");
       notifyListeners();
     } catch (e) {
       firebaseService.getFirebaseAuthInstance().signOut();
@@ -144,6 +149,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    await FirebaseMessaging.instance.unsubscribeFromTopic("users-topic");
     firebaseService.getFirebaseAuthInstance().signOut();
 
     await _googleSignIn.isSignedIn().then((isSignedIn) {

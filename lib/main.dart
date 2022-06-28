@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:eventos_da_rep/config/environment.dart';
+import 'package:eventos_da_rep/screens/login/new_login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -11,7 +12,6 @@ import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
 import 'screens/home/home.dart';
-import 'screens/login/login.dart';
 import 'services/firebase_service.dart';
 
 void main() async {
@@ -105,7 +105,7 @@ class Controller extends StatelessWidget {
         } else if (snapshot.hasData) {
           return const Home();
         } else {
-          return const Login();
+          return const NewLogin();
         }
       },
     );

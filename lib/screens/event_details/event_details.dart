@@ -4,6 +4,7 @@ import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
 import 'package:eventos_da_rep/screens/event_chat/event_chat.dart';
 import 'package:eventos_da_rep/screens/event_details/users_on_event.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:map_launcher/map_launcher.dart';
@@ -57,18 +58,21 @@ class _EventDetailsState extends State<EventDetails> {
       _isLoading = true;
     });
     _userClient.going(userId, widget.event.id).then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-
       final result = {
         'title': 'Ai sim! 👏👏👏',
         'message': 'Boa! Você está confirmado para o evento!',
         'isSuccess': 'success',
       };
 
-      Navigator.pop(context, result);
-    }).onError((_, __) {
+      FirebaseMessaging.instance.subscribeToTopic(widget.event.id).then(
+            (value) => {
+              setState(() {
+                _isLoading = false;
+              }),
+              Navigator.pop(context, result),
+            },
+          );
+    }).onError((error, __) {
       setState(() {
         _isLoading = false;
       });
@@ -87,18 +91,21 @@ class _EventDetailsState extends State<EventDetails> {
       _isLoading = true;
     });
     _userClient.cancel(userId, widget.event.id).then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-
       final result = {
         'title': 'Que pena! 😢😢😢',
         'message': 'Cancelamento confirmado!',
         'isSuccess': 'success',
       };
 
-      Navigator.pop(context, result);
-    }).onError((_, __) {
+      FirebaseMessaging.instance.unsubscribeFromTopic(widget.event.id).then(
+            (value) => {
+              setState(() {
+                _isLoading = false;
+              }),
+              Navigator.pop(context, result),
+            },
+          );
+    }).onError((error, __) {
       setState(() {
         _isLoading = false;
       });
@@ -201,24 +208,29 @@ class _EventDetailsState extends State<EventDetails> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    openMapsSheet(
-                                      context,
-                                      widget.event.latitude,
-                                      widget.event.longitude,
-                                      widget.event.title,
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
+                                SizedBox(
+                                  width: 150,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      openMapsSheet(
+                                        context,
+                                        widget.event.latitude,
+                                        widget.event.longitude,
+                                        widget.event.title,
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20.0),
+                                      ),
                                     ),
-                                  ),
-                                  child: const Text(
-                                    'Ver no mapa',
-                                    style: TextStyle(
+                                    icon: const Icon(
+                                      Icons.map,
                                       color: Colors.white,
+                                    ),
+                                    label: const Text(
+                                      "Localização",
                                     ),
                                   ),
                                 ),
@@ -263,7 +275,7 @@ class _EventDetailsState extends State<EventDetails> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  ElevatedButton(
+                                  ElevatedButton.icon(
                                     onPressed: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -283,7 +295,11 @@ class _EventDetailsState extends State<EventDetails> {
                                             BorderRadius.circular(20.0),
                                       ),
                                     ),
-                                    child: const Text('Chat do evento'),
+                                    icon: const Icon(
+                                      Icons.chat,
+                                      color: Colors.white,
+                                    ),
+                                    label: const Text('Chat do evento'),
                                   ),
                                 ],
                               ),
@@ -292,7 +308,7 @@ class _EventDetailsState extends State<EventDetails> {
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 20,
-                              vertical: 4,
+                              vertical: 12,
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,

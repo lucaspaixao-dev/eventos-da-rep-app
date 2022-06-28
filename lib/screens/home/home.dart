@@ -12,9 +12,7 @@ import '../../helpers/date_helper.dart';
 import '../../helpers/string_helper.dart';
 import '../../http/event_client.dart';
 import '../../http/user_client.dart';
-import '../../models/device.dart';
 import '../../models/user.dart';
-import '../../providers/device_provider.dart';
 import '../../providers/shared_preferences_provider.dart';
 import '../../services/firebase_service.dart';
 import 'components/navigation_drawer.dart';
@@ -51,18 +49,6 @@ class _HomeState extends State<Home> {
     });
 
     FlutterNativeSplash.remove();
-
-    _syncDevice().catchError((e) {
-      if (e is ApiException) {
-        SnackBar snackBar = buildErrorSnackBar(e.cause);
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } else {
-        SnackBar snackBar =
-            buildErrorSnackBar("Ocorreu um erro ao sincronizar o dispositivo");
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
-    });
-
     super.initState();
   }
 
@@ -158,7 +144,7 @@ class _HomeState extends State<Home> {
                         SizedBox(
                           width: mediaQuery.size.width * 0.80,
                           child: const Text(
-                            "Vamos ver quais são os próximos eventos da rep?",
+                            "Vamos ver quais são os próximos eventos da REP mais badalada de Araraquara?",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -261,44 +247,6 @@ class _HomeState extends State<Home> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
       _pagingController.error = e;
-    }
-  }
-
-  Future<void> _syncDevice() async {
-    final SharedPreferencesProvider provider = SharedPreferencesProvider();
-    final String? userId = await provider.getStringValue(prefUserId);
-
-    if (userId != null) {
-      String? token = await firebaseMessaging.getToken();
-
-      if (token != null) {
-        String? storageToken = await provider.getStringValue(prefCloudToken);
-
-        if (storageToken == null || storageToken != token) {
-          await provider.putStringValue(
-            prefCloudToken,
-            token,
-          );
-
-          final DeviceProvider deviceProvider = DeviceProvider();
-          final Device device = await deviceProvider.getDeviceInfos(token);
-
-          final UserClient client = UserClient();
-
-          try {
-            await client.syncDevide(userId, device);
-            FirebaseService firebaseService = FirebaseService();
-
-            String apiToken = await firebaseService.getAuthUser()!.getIdToken();
-            await provider.putStringValue(
-              prefApiToken,
-              apiToken,
-            );
-          } catch (_) {
-            rethrow;
-          }
-        }
-      }
     }
   }
 
