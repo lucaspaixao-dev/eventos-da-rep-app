@@ -1,10 +1,16 @@
-import 'package:eventos_da_rep/widgets/loader.dart';
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:eventos_da_rep/widgets/app_button.dart';
+import 'package:eventos_da_rep/widgets/app_logo.dart';
+import 'package:eventos_da_rep/widgets/app_subtitle.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/internet_helper.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/app_back_button.dart';
+import '../../widgets/app_email_text_form_field.dart';
 import '../../widgets/app_snack_bar.dart';
 
 class ForgetPassword extends StatefulWidget {
@@ -17,9 +23,6 @@ class ForgetPassword extends StatefulWidget {
 class _ForgetPasswordState extends State<ForgetPassword> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
-  String emailRegex =
-      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
-
   bool isLoading = false;
 
   @override
@@ -44,36 +47,13 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                 const SizedBox(
                   height: 18,
                 ),
-                Row(
-                  children: const <Widget>[
-                    Text(
-                      "EVENTOS ",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      "DA REP",
-                      style: TextStyle(
-                        color: Color(0xffFFA700),
-                        fontSize: 25,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    )
-                  ],
+                const AppLogo(
+                  fontSize: 25,
                 ),
                 const SizedBox(
                   height: 14,
                 ),
-                const Text(
-                  "Fique por dentro dos eventos da REP mais badalada da região!",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                const AppSubtitle(),
                 const SizedBox(
                   height: 14,
                 ),
@@ -81,48 +61,16 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: emailController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Insira seu e-mail.';
-                          }
-
-                          bool emailValid = RegExp(emailRegex).hasMatch(value);
-
-                          if (!emailValid) {
-                            return 'Insira um e-mail válido.';
-                          }
-                          return null;
-                        },
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                        decoration: const InputDecoration(
-                          border: UnderlineInputBorder(),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          labelText: 'Seu e-mail',
-                          labelStyle: TextStyle(color: Colors.white),
-                          hintStyle: TextStyle(color: Colors.white),
-                          errorStyle: TextStyle(color: Colors.redAccent),
-                        ),
+                      AppEmailTextFormField(
+                        emailController: emailController,
                       ),
                       const SizedBox(
                         height: 14,
                       ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.blue,
-                          minimumSize: const Size.fromHeight(50), // NEW
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
+                      AppButton(
+                        isLoading: isLoading,
+                        text: "Redifinir minha senha",
+                        color: Colors.blue,
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             setState(() {
@@ -184,16 +132,6 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                                 );
                           }
                         },
-                        child: !isLoading
-                            ? const Text(
-                                "Redifinir minha senha",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              )
-                            : const Loader(),
                       ),
                     ],
                   ),
@@ -201,24 +139,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                 const SizedBox(
                   height: 14,
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.white,
-                    minimumSize: const Size.fromHeight(50), // NEW
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                  ),
-                  onPressed: () => isLoading ? null : Navigator.pop(context),
-                  child: const Text(
-                    "Voltar",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                AppBackButton(isLoading: isLoading),
                 const SizedBox(
                   height: 14,
                 ),

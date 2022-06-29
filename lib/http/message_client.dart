@@ -10,7 +10,7 @@ class MessageClient {
 
   Stream<List<chat_message.Message>> getMessages(String eventId) async* {
     while (true) {
-      await Future.delayed(const Duration(milliseconds: 1000));
+      await Future.delayed(const Duration(milliseconds: 500));
 
       try {
         final response = await http.get(

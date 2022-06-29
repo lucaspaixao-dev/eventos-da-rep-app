@@ -16,27 +16,23 @@ class AppSnackBar {
     required this.duration,
   });
 
-  SnackBar buildSnackBar() {
-    return SnackBar(
-      duration: duration,
-      elevation: elevation,
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: Colors.transparent,
-      content: AwesomeSnackbarContent(
-        title: title,
-        message: message,
-        contentType: isSuccess ? ContentType.success : ContentType.failure,
-      ),
-    );
-  }
+  SnackBar buildSnackBar() => SnackBar(
+        duration: duration,
+        elevation: elevation,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        content: AwesomeSnackbarContent(
+          title: title,
+          message: message,
+          contentType: isSuccess ? ContentType.success : ContentType.failure,
+        ),
+      );
 }
 
-SnackBar buildErrorSnackBar(String message) {
-  return AppSnackBar(
-    title: "Ops! Ocorreu um erro!",
-    message: message,
-    isSuccess: false,
-    elevation: 10.0,
-    duration: const Duration(milliseconds: 3000),
-  ).buildSnackBar();
-}
+SnackBar buildErrorSnackBar(String message) => AppSnackBar(
+      title: "Ops! Ocorreu um erro!",
+      message: message,
+      isSuccess: false,
+      elevation: 10.0,
+      duration: const Duration(milliseconds: 3000),
+    ).buildSnackBar();

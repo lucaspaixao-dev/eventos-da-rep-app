@@ -74,19 +74,6 @@ class NavigationDrawer extends StatelessWidget {
             const Divider(
               color: Colors.white,
             ),
-            // ListTile(
-            //   leading: const Icon(
-            //     Icons.event,
-            //     color: Colors.white,
-            //   ),
-            //   title: const Text(
-            //     "Eventos que eu vou participar",
-            //     style: TextStyle(
-            //       color: Colors.white,
-            //     ),
-            //   ),
-            //   onTap: () => {},
-            // ),
             ListTile(
               leading: const Icon(
                 Icons.logout,

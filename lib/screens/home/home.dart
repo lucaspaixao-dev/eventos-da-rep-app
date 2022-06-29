@@ -2,6 +2,7 @@ import 'package:eventos_da_rep/exceptions/exceptions.dart';
 import 'package:eventos_da_rep/models/event.dart';
 import 'package:eventos_da_rep/models/user_resume.dart';
 import 'package:eventos_da_rep/screens/event_details/event_details.dart';
+import 'package:eventos_da_rep/widgets/app_logo.dart';
 import 'package:eventos_da_rep/widgets/app_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -83,24 +84,7 @@ class _HomeState extends State<Home> {
         centerTitle: true,
         backgroundColor: const Color(0xff102733),
         elevation: 0,
-        title: Row(
-          children: const <Widget>[
-            Text(
-              "EVENTOS ",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800),
-            ),
-            Text(
-              "DA REP",
-              style: TextStyle(
-                  color: Color(0xffFCCD00),
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
+        title: const AppLogo(fontSize: 25),
       ),
       body: Stack(
         children: [

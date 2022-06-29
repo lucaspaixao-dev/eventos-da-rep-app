@@ -6,14 +6,13 @@ class PopularEventTile extends StatefulWidget {
   final String address;
   final String imgeAssetPath;
 
-  /// later can be changed with imgUrl
-  const PopularEventTile(
-      {Key? key,
-      required this.address,
-      required this.date,
-      required this.imgeAssetPath,
-      required this.desc})
-      : super(key: key);
+  const PopularEventTile({
+    Key? key,
+    required this.address,
+    required this.date,
+    required this.imgeAssetPath,
+    required this.desc,
+  }) : super(key: key);
 
   @override
   State<PopularEventTile> createState() => _PopularEventTileState();

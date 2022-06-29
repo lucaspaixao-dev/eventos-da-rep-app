@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:eventos_da_rep/config/environment.dart';
-import 'package:eventos_da_rep/screens/login/new_login.dart';
+import 'package:eventos_da_rep/screens/login/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -20,7 +20,6 @@ void main() async {
 
   await Firebase.initializeApp();
 
-  //FirebaseCrashlytics.instance.crash();
   if (kDebugMode) {
     HttpOverrides.global = MyHttpOverrides();
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
@@ -38,7 +37,7 @@ void main() async {
   } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
     _startPushNotificationsHandler();
   } else {
-    debugPrint("Usuário não deu permissão para notificações");
+    debugPrint("The user has not authorized notification");
   }
 
   const String env = String.fromEnvironment(
@@ -47,17 +46,16 @@ void main() async {
   );
 
   Environment().initConfig(env);
-
   runApp(const MyApp());
 }
 
 void _startPushNotificationsHandler() async {
   FirebaseMessaging.onMessage.listen((event) {
-    debugPrint("Mensagem recebida: ${event.data}");
+    debugPrint("Received message: ${event.data}");
 
     if (event.notification != null) {
       debugPrint(
-        "Mensagem com notificação: ${event.notification!.title}, ${event.notification!.body}",
+        "Message with notification: ${event.notification!.title}, ${event.notification!.body}",
       );
     }
   });
@@ -66,26 +64,24 @@ void _startPushNotificationsHandler() async {
 }
 
 Future<void> _firebaseMessagingBackground(RemoteMessage message) async {
-  debugPrint("Mensagem em background: ${message.data}");
+  debugPrint("Background message: ${message.data}");
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
-      child: MaterialApp(
-        title: 'Eventos da Rep',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+  Widget build(BuildContext context) => ChangeNotifierProvider(
+        create: (_) => AuthProvider(),
+        child: MaterialApp(
+          title: 'Eventos da Rep',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          home: const Controller(),
         ),
-        home: const Controller(),
-      ),
-    );
-  }
+      );
 }
 
 class Controller extends StatelessWidget {
@@ -105,7 +101,7 @@ class Controller extends StatelessWidget {
         } else if (snapshot.hasData) {
           return const Home();
         } else {
-          return const NewLogin();
+          return const Login();
         }
       },
     );
@@ -114,9 +110,8 @@ class Controller extends StatelessWidget {
 
 class MyHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-  }
+  HttpClient createHttpClient(SecurityContext? context) =>
+      super.createHttpClient(context)
+        ..badCertificateCallback =
+            (X509Certificate cert, String host, int port) => true;
 }
