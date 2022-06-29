@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../models/event.dart';
-import '../users_on_event.dart';
+import '../../users_on_event/users_on_event.dart';
 
 class ShowUsersOnEvent extends StatelessWidget {
   const ShowUsersOnEvent({
