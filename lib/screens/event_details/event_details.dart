@@ -120,7 +120,7 @@ class _EventDetailsState extends State<EventDetails> {
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 20,
-                              vertical: 12,
+                              vertical: 4,
                             ),
                             child: DateBoxEventDetails(
                               mediaQuery: mediaQuery,
