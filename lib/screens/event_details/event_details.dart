@@ -2,19 +2,23 @@ import 'dart:async';
 
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
-import 'package:eventos_da_rep/screens/event_chat/event_chat.dart';
-import 'package:eventos_da_rep/screens/event_details/users_on_event.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:map_launcher/map_launcher.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
-import '../../helpers/date_helper.dart';
-import '../../helpers/string_helper.dart';
 import '../../providers/shared_preferences_provider.dart';
-import '../../widgets/app_snack_bar.dart';
-import '../../widgets/loader.dart';
+import 'components/address_box_event_details.dart';
+import 'components/chat_event_details.dart';
+import 'components/confirm_button_event_details.dart';
+import 'components/cover_event_details.dart';
+import 'components/date_box_event_details.dart';
+import 'components/description_box_event_details.dart';
+import 'components/description_event_details.dart';
+import 'components/no_users_event.dart';
+import 'components/show_map_event_details.dart';
+import 'components/show_people_confirmed_event.dart';
+import 'components/show_users_on_event.dart';
+import 'components/time_box_event_details.dart';
+import 'components/title_event_details.dart';
 
 class EventDetails extends StatefulWidget {
   final Event event;
@@ -30,33 +34,168 @@ class EventDetails extends StatefulWidget {
 
 class _EventDetailsState extends State<EventDetails> {
   final _userClient = UserClient();
-
   bool _isLoading = false;
 
-  bool checkIfUserIsGoing(String? userId) {
-    if (userId == null) {
-      return false;
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    return FutureBuilder<String?>(
+      future: SharedPreferencesProvider().getStringValue(prefUserId),
+      builder: (context, snapshot) {
+        final String? id = snapshot.data;
+        final isGoing = checkIfUserIsGoing(id);
+
+        return Scaffold(
+          body: Stack(
+            children: [
+              Container(
+                decoration: const BoxDecoration(color: Color(0xff102733)),
+              ),
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    CoverEventDetails(
+                      photo: widget.event.photo,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        children: [
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TitleEventDetails(
+                                mediaQuery: mediaQuery,
+                                title: widget.event.title,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 4,
+                            ),
+                            child: AddressBoxEventDetails(
+                              mediaQuery: mediaQuery,
+                              event: widget.event,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 4,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                ShowMapEventDetails(
+                                  latitude: widget.event.latitude,
+                                  longitude: widget.event.longitude,
+                                  title: widget.event.title,
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                ConfirmButtonEventDetails(
+                                  isGoing: isGoing,
+                                  isLoading: _isLoading,
+                                  onPressed: () =>
+                                      _redirectGoingOrNot(isGoing, id),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ChatEventDetails(
+                            isGoing: isGoing,
+                            title: widget.event.title,
+                            userId: id ?? "",
+                            eventId: widget.event.id,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            child: DateBoxEventDetails(
+                              mediaQuery: mediaQuery,
+                              date: widget.event.date,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 4,
+                            ),
+                            child: TimeBoxEventDetails(
+                              mediaQuery: mediaQuery,
+                              event: widget.event,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 4,
+                            ),
+                            child: ShowPeopleConfirmedOnEvent(
+                              mediaQuery: mediaQuery,
+                            ),
+                          ),
+                          ShowUsersOnEvent(
+                            mediaQuery: mediaQuery,
+                            event: widget.event,
+                          ),
+                          NoUsersOnEvent(
+                            isEmpty: widget.event.users.isEmpty,
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            child: DecriptionBoxEventDetails(),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 4,
+                            ),
+                            child: DescriptionEventDetails(
+                              mediaQuery: mediaQuery,
+                              description: widget.event.description,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _redirectGoingOrNot(isGoing, id) {
+    if (!isGoing) {
+      _going(id);
+    } else {
+      _cancel(id);
     }
-
-    if (widget.event.users.isEmpty) {
-      return false;
-    }
-
-    bool userIsGoing = false;
-
-    for (var user in widget.event.users) {
-      if (user.id == userId) {
-        userIsGoing = true;
-      }
-    }
-
-    return userIsGoing;
   }
 
   void _going(String userId) async {
     setState(() {
       _isLoading = true;
     });
+
     _userClient.going(userId, widget.event.id).then((_) {
       final result = {
         'title': 'Ai sim! 👏👏👏',
@@ -69,7 +208,7 @@ class _EventDetailsState extends State<EventDetails> {
               setState(() {
                 _isLoading = false;
               }),
-              Navigator.pop(context, result),
+              Navigator.pop(context, result)
             },
           );
     }).onError((error, __) {
@@ -119,430 +258,23 @@ class _EventDetailsState extends State<EventDetails> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    return FutureBuilder<String?>(
-      future: SharedPreferencesProvider().getStringValue(prefUserId),
-      builder: (context, snapshot) {
-        final String? id = snapshot.data;
-        final isGoing = checkIfUserIsGoing(id);
-
-        return Scaffold(
-          body: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(color: Color(0xff102733)),
-              ),
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 250,
-                      width: double.infinity,
-                      child: Image.network(
-                        widget.event.photo,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: mediaQuery.size.width * 0.90,
-                                child: Text(
-                                  widget.event.title,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                SizedBox(
-                                  width: mediaQuery.size.width * 0.81,
-                                  child: Text(
-                                    buildAddressResume(widget.event),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: 150,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () {
-                                      openMapsSheet(
-                                        context,
-                                        widget.event.latitude,
-                                        widget.event.longitude,
-                                        widget.event.title,
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                      ),
-                                    ),
-                                    icon: const Icon(
-                                      Icons.map,
-                                      color: Colors.white,
-                                    ),
-                                    label: const Text(
-                                      "Localização",
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => _isLoading
-                                      ? null
-                                      : {
-                                          if (!isGoing)
-                                            {
-                                              _going(id!),
-                                            }
-                                          else
-                                            {
-                                              _cancel(id!),
-                                            }
-                                        },
-                                  style: ElevatedButton.styleFrom(
-                                    primary:
-                                        !isGoing ? Colors.green : Colors.red,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
-                                    ),
-                                  ),
-                                  child: (_isLoading)
-                                      ? const Loader()
-                                      : !isGoing
-                                          ? const Text('Confirmar Presença')
-                                          : const Text('Cancelar Presença'),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Visibility(
-                            visible: isGoing,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  ElevatedButton.icon(
-                                    onPressed: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return EventChat(
-                                            eventId: widget.event.id,
-                                            userId: id!,
-                                            eventName: widget.event.title,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      primary: Colors.indigo,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(20.0),
-                                      ),
-                                    ),
-                                    icon: const Icon(
-                                      Icons.chat,
-                                      color: Colors.white,
-                                    ),
-                                    label: const Text('Chat do evento'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.calendar_month,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                SizedBox(
-                                  width: mediaQuery.size.width * 0.80,
-                                  child: Text(
-                                    formatDate(widget.event.date),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.timer,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                SizedBox(
-                                  width: mediaQuery.size.width * 0.80,
-                                  child: Text(
-                                    // ignore: prefer_interpolation_to_compose_strings
-                                    formatTime(widget.event.begin) +
-                                        ' - ' +
-                                        formatTime(widget.event.end),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.people,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                SizedBox(
-                                  width: mediaQuery.size.width * 0.80,
-                                  child: const Text(
-                                    "Veja quem confirmou presença:",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Visibility(
-                            visible: widget.event.users.isNotEmpty,
-                            child: InkWell(
-                              onTap: () {
-                                showCupertinoModalBottomSheet(
-                                  context: context,
-                                  builder: (context) => UsersOnEvent(
-                                    users: widget.event.users,
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: mediaQuery.size.width * 0.80,
-                                      height: mediaQuery.size.width * 0.15,
-                                      child: ListView.builder(
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount: widget.event.users.length,
-                                        itemBuilder:
-                                            (BuildContext context, int index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                              left: 8,
-                                            ),
-                                            child: CircleAvatar(
-                                              radius: 20,
-                                              backgroundImage: NetworkImage(
-                                                widget.event.users[index].photo,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Visibility(
-                            visible: widget.event.users.isEmpty,
-                            child: const Text(
-                              "Nenhum usuário confirmou presença 🥲",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Text(
-                                  'Descrição',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  width: mediaQuery.size.width * 0.86,
-                                  child: Text(
-                                    widget.event.description,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  openMapsSheet(
-    BuildContext context,
-    double lat,
-    double long,
-    String title,
-  ) async {
-    try {
-      final coords = Coords(lat, long);
-      final availableMaps = await MapLauncher.installedMaps;
-
-      showMaterialModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return SafeArea(
-            child: SingleChildScrollView(
-              child: Wrap(
-                children: <Widget>[
-                  for (var map in availableMaps)
-                    ListTile(
-                      onTap: () => map.showMarker(
-                        coords: coords,
-                        title: title,
-                      ),
-                      title: Text(map.mapName),
-                      leading: SvgPicture.asset(
-                        map.icon,
-                        height: 30.0,
-                        width: 30.0,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    } catch (_) {
-      SnackBar snackBar = buildErrorSnackBar(
-          "Ocorreu um erro ao abrir o mapa, tente novamente mais tarde.");
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  bool checkIfUserIsGoing(String? userId) {
+    if (userId == null) {
+      return false;
     }
+
+    if (widget.event.users.isEmpty) {
+      return false;
+    }
+
+    bool userIsGoing = false;
+
+    for (var user in widget.event.users) {
+      if (user.id == userId) {
+        userIsGoing = true;
+      }
+    }
+
+    return userIsGoing;
   }
 }

@@ -178,7 +178,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  _validateAndLogin() async {
+  _validateAndLogin() {
     if (_formKey.currentState!.validate()) {
       final authService = Provider.of<AuthProvider>(
         context,
@@ -194,7 +194,7 @@ class _LoginState extends State<Login> {
       String password = passwordController.text;
 
       SnackBar snackBar;
-      await authService
+      authService
           .emailAndPasswordSignIn(
             email,
             password,
@@ -227,6 +227,9 @@ class _LoginState extends State<Login> {
                         )
                       },
                     ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                    setState(() {
+                      _isLoading = false;
+                    })
                   },
               test: (e) => e is FirebaseAuthException)
           .catchError(
@@ -235,6 +238,9 @@ class _LoginState extends State<Login> {
                       e.cause,
                     ),
                     ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                    setState(() {
+                      _isLoading = false;
+                    })
                   },
               test: (e) => e is ApiException)
           .catchError(
@@ -243,18 +249,11 @@ class _LoginState extends State<Login> {
                       "Ocorreu um erro ao tentar criar sua conta. Tente novamente mais tarde.",
                     ),
                     ScaffoldMessenger.of(context).showSnackBar(snackBar),
+                    setState(() {
+                      _isLoading = false;
+                    })
                   },
-              test: (e) => e is Exception)
-          .whenComplete(
-            () => {
-              if (mounted)
-                {
-                  setState(() {
-                    _isLoading = false;
-                  })
-                }
-            },
-          );
+              test: (e) => e is Exception);
     }
   }
 }
