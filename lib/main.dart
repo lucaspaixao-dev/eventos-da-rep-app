@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
@@ -46,6 +47,10 @@ void main() async {
   );
 
   Environment().initConfig(env);
+
+  Stripe.publishableKey =
+      "pk_test_51LGNtsA6S1gOJhLnWgKUPft69BWKzy4zznzRFP6xZJC9QvLksfkybA6J1UGJWUMQLfk6DzURUv7WqnGOVUqsTE1T00h3igqbkj";
+  Stripe.merchantIdentifier = "Test";
   runApp(const MyApp());
 }
 

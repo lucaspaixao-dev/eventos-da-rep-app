@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
+import 'package:eventos_da_rep/widgets/app_snack_bar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 import '../../providers/shared_preferences_provider.dart';
 import 'components/address_box_event_details.dart';
@@ -111,6 +113,10 @@ class _EventDetailsState extends State<EventDetails> {
                               ],
                             ),
                           ),
+                          ElevatedButton(
+                            onPressed: () => _pay(),
+                            child: const Text("Pagar"),
+                          ),
                           ChatEventDetails(
                             isGoing: isGoing,
                             title: widget.event.title,
@@ -181,6 +187,31 @@ class _EventDetailsState extends State<EventDetails> {
         );
       },
     );
+  }
+
+  Future<void> _pay() async {
+    await Stripe.instance.initPaymentSheet(
+      paymentSheetParameters: const SetupPaymentSheetParameters(
+        paymentIntentClientSecret:
+            "pi_3LH3EfA6S1gOJhLn0Tq4uaxb_secret_uTiMNDwef9MXn2L3958tdR3zm",
+        applePay: true,
+        googlePay: true,
+        merchantCountryCode: "brl",
+        merchantDisplayName: "Eventos da REP",
+      ),
+    );
+
+    await Stripe.instance
+        .presentPaymentSheet()
+        .then(
+          (value) => print("terminou"),
+        )
+        .onError(
+          (error, stackTrace) => ScaffoldMessenger.of(context).showSnackBar(
+            buildErrorSnackBar(
+                "Ocorreu um erro ao realizar seu pagamento, tente novamente mais tarde."),
+          ),
+        );
   }
 
   void _redirectGoingOrNot(isGoing, id) {

@@ -42,6 +42,8 @@ dependencies:
   flutter_chat_ui: ^1.6.2
   flutter_chat_types:
 
+  flutter_stripe:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
