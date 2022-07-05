@@ -1,11 +1,12 @@
 import 'dart:async';
 
+import 'package:eventos_da_rep/http/payment_client.dart';
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
+import 'package:eventos_da_rep/screens/checkout/event_checkout.dart';
 import 'package:eventos_da_rep/widgets/app_snack_bar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 
 import '../../providers/shared_preferences_provider.dart';
 import 'components/address_box_event_details.dart';
@@ -15,6 +16,7 @@ import 'components/cover_event_details.dart';
 import 'components/date_box_event_details.dart';
 import 'components/description_box_event_details.dart';
 import 'components/description_event_details.dart';
+import 'components/event_price_details.dart';
 import 'components/no_users_event.dart';
 import 'components/show_map_event_details.dart';
 import 'components/show_people_confirmed_event.dart';
@@ -113,10 +115,6 @@ class _EventDetailsState extends State<EventDetails> {
                               ],
                             ),
                           ),
-                          ElevatedButton(
-                            onPressed: () => _pay(),
-                            child: const Text("Pagar"),
-                          ),
                           ChatEventDetails(
                             isGoing: isGoing,
                             title: widget.event.title,
@@ -141,6 +139,18 @@ class _EventDetailsState extends State<EventDetails> {
                             child: TimeBoxEventDetails(
                               mediaQuery: mediaQuery,
                               event: widget.event,
+                            ),
+                          ),
+                          Visibility(
+                            visible: widget.event.isPayed,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 4,
+                              ),
+                              child: EventPriceDetails(
+                                amount: widget.event.amount ?? 0,
+                              ),
                             ),
                           ),
                           Padding(
@@ -189,37 +199,46 @@ class _EventDetailsState extends State<EventDetails> {
     );
   }
 
-  Future<void> _pay() async {
-    await Stripe.instance.initPaymentSheet(
-      paymentSheetParameters: const SetupPaymentSheetParameters(
-        paymentIntentClientSecret:
-            "pi_3LH3EfA6S1gOJhLn0Tq4uaxb_secret_uTiMNDwef9MXn2L3958tdR3zm",
-        applePay: true,
-        googlePay: true,
-        merchantCountryCode: "brl",
-        merchantDisplayName: "Eventos da REP",
-      ),
-    );
+  void _redirectGoingOrNot(isGoing, id) {
+    if (!isGoing) {
+      if (widget.event.isPayed) {
+        _createPayment(id);
+      } else {
+        _going(id);
+      }
+    } else {
+      _cancel(id);
+    }
+  }
 
-    await Stripe.instance
-        .presentPaymentSheet()
+  void _createPayment(String userId) {
+    PaymentClient client = PaymentClient();
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    client
+        .createPaymentIntent(widget.event.id, userId)
         .then(
-          (value) => print("terminou"),
+          (value) => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return EventCheckout(
+                  event: widget.event,
+                  paymentIntentClientSecret: value,
+                );
+              },
+            ),
+          ),
         )
         .onError(
           (error, stackTrace) => ScaffoldMessenger.of(context).showSnackBar(
             buildErrorSnackBar(
-                "Ocorreu um erro ao realizar seu pagamento, tente novamente mais tarde."),
+                "Ocorreu um erro ao criar seu pagamento, tente novamente mais tarde."),
           ),
         );
-  }
-
-  void _redirectGoingOrNot(isGoing, id) {
-    if (!isGoing) {
-      _going(id);
-    } else {
-      _cancel(id);
-    }
   }
 
   void _going(String userId) async {

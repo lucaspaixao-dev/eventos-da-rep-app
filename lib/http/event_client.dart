@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:eventos_da_rep/services/firebase_service.dart';
 import "package:http/http.dart" as http;
 
 import '../config/environment.dart';
@@ -8,6 +9,7 @@ import '../models/event.dart';
 
 class EventClient {
   final String url = Environment().config!.apiHost;
+  final FirebaseService _firebaseService = FirebaseService();
 
   Future<List<Event>> getEvents(int pageKey, int pageSize) async {
     final hasInternet = await checkInternetConnection();
@@ -19,8 +21,13 @@ class EventClient {
     }
 
     try {
+      final token = await _firebaseService.getToken();
+
       final response = await http.get(
         Uri.parse("$url/events/actives?page=$pageKey&size=$pageSize"),
+        headers: {
+          "Authorization": "Bearer $token",
+        },
       );
 
       if (response.statusCode == 200) {

@@ -161,14 +161,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String>? getUserToken() {
-    if (firebaseService.getAuthUser() != null) {
-      return firebaseService.getAuthUser()!.getIdToken();
-    }
-
-    return null;
-  }
-
   Future<void> _createUserOnService(
     String name,
     String email,

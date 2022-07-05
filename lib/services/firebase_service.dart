@@ -18,4 +18,12 @@ class FirebaseService {
     await user?.updatePhotoURL(photo);
     await user?.reload();
   }
+
+  Future<String> getToken() async {
+    if (getAuthUser() != null) {
+      return await getAuthUser()!.getIdToken();
+    } else {
+      throw Exception("Usuário não está logado.");
+    }
+  }
 }

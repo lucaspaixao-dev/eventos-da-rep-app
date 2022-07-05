@@ -48,10 +48,14 @@ void main() async {
 
   Environment().initConfig(env);
 
+  _initStripe();
+  runApp(const MyApp());
+}
+
+void _initStripe() {
   Stripe.publishableKey =
       "pk_test_51LGNtsA6S1gOJhLnWgKUPft69BWKzy4zznzRFP6xZJC9QvLksfkybA6J1UGJWUMQLfk6DzURUv7WqnGOVUqsTE1T00h3igqbkj";
-  Stripe.merchantIdentifier = "Test";
-  runApp(const MyApp());
+  Stripe.merchantIdentifier = "Eventos da REP";
 }
 
 void _startPushNotificationsHandler() async {

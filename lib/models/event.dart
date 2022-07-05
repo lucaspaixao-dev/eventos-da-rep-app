@@ -15,25 +15,28 @@ class Event {
   final DateTime begin;
   final DateTime end;
   final bool active;
+  final bool isPayed;
+  final int? amount;
   final List<User> users;
   final DateTime createdAt;
 
-  Event({
-    required this.id,
-    required this.title,
-    required this.latitude,
-    required this.longitude,
-    required this.city,
-    required this.address,
-    required this.description,
-    required this.photo,
-    required this.date,
-    required this.begin,
-    required this.end,
-    required this.active,
-    required this.createdAt,
-    required this.users,
-  });
+  Event(
+      {required this.id,
+      required this.title,
+      required this.latitude,
+      required this.longitude,
+      required this.city,
+      required this.address,
+      required this.description,
+      required this.photo,
+      required this.date,
+      required this.begin,
+      required this.end,
+      required this.active,
+      required this.createdAt,
+      required this.users,
+      required this.isPayed,
+      this.amount});
 
   factory Event.fromJson(dynamic json) {
     List<User> _getUsersId(List<dynamic>? users) {
@@ -71,6 +74,8 @@ class Event {
       active: json['active'] as bool,
       createdAt: DateTime.parse(json['createdAt'] as String),
       users: _getUsersId(json['users']),
+      isPayed: json['isPayed'] as bool,
+      amount: json['amount'] as int?,
     );
   }
 }

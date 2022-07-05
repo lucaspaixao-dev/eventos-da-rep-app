@@ -6,9 +6,11 @@ import "package:http/http.dart" as http;
 
 import '../helpers/internet_helper.dart';
 import '../models/user.dart';
+import '../services/firebase_service.dart';
 
 class UserClient {
   final String url = Environment().config!.apiHost;
+  final FirebaseService _firebaseService = FirebaseService();
 
   Future<String> createUser(User user) async {
     final hasInternet = await checkInternetConnection();
@@ -31,11 +33,13 @@ class UserClient {
           'token': user.device.token,
         },
       };
+      final token = await _firebaseService.getToken();
 
       final response = await http.post(
         Uri.parse("$url/users"),
         headers: <String, String>{
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
         body: json.encode(request),
       );
@@ -78,10 +82,12 @@ class UserClient {
         'token': device.token,
       };
 
+      final token = await _firebaseService.getToken();
       final response = await http.put(
         Uri.parse("$url/users/$userId/devices"),
         headers: <String, String>{
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
         },
         body: json.encode(request),
       );
@@ -106,9 +112,14 @@ class UserClient {
       );
     }
 
+    final token = await _firebaseService.getToken();
+
     try {
       final response = await http.get(
         Uri.parse("$url/users/email/$email"),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -135,9 +146,15 @@ class UserClient {
       );
     }
 
+    final token = await _firebaseService.getToken();
+
     try {
-      final response = await http
-          .put(Uri.parse("$url/events/$eventId/users/$userId/accept"));
+      final response = await http.put(
+        Uri.parse("$url/events/$eventId/users/$userId/accept"),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode != 204) {
         throw ApiException(
@@ -159,9 +176,15 @@ class UserClient {
       );
     }
 
+    final token = await _firebaseService.getToken();
+
     try {
-      final response = await http
-          .put(Uri.parse("$url/events/$eventId/users/$userId/disavow"));
+      final response = await http.put(
+        Uri.parse("$url/events/$eventId/users/$userId/disavow"),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
 
       if (response.statusCode != 204) {
         throw ApiException(
