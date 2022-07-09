@@ -5,9 +5,11 @@ import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/event.dart';
 import 'package:eventos_da_rep/screens/checkout/event_checkout.dart';
 import 'package:eventos_da_rep/widgets/app_snack_bar.dart';
+import 'package:eventos_da_rep/widgets/top_close_button.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/payment.dart';
 import '../../providers/shared_preferences_provider.dart';
 import 'components/address_box_event_details.dart';
 import 'components/chat_event_details.dart';
@@ -38,6 +40,7 @@ class EventDetails extends StatefulWidget {
 
 class _EventDetailsState extends State<EventDetails> {
   final _userClient = UserClient();
+  final _paymentClient = PaymentClient();
   bool _isLoading = false;
 
   @override
@@ -47,153 +50,176 @@ class _EventDetailsState extends State<EventDetails> {
       future: SharedPreferencesProvider().getStringValue(prefUserId),
       builder: (context, snapshot) {
         final String? id = snapshot.data;
-        final isGoing = checkIfUserIsGoing(id);
+        return FutureBuilder(
+          future: checkIfUserIsGoing(id),
+          builder: (context, snap2) {
+            bool isGoing = false;
 
-        return Scaffold(
-          body: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(color: Color(0xff102733)),
-              ),
-              SingleChildScrollView(
-                child: Column(
-                  children: [
-                    CoverEventDetails(
-                      photo: widget.event.photo,
+            if (snap2.connectionState == ConnectionState.waiting) {
+              _isLoading = true;
+            } else if (snap2.connectionState == ConnectionState.done) {
+              isGoing = snap2.data as bool;
+              _isLoading = false;
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                buildErrorSnackBar(
+                    "Ocorreu um erro ao verificar sua inscrição no evento, tente novamente mais tarde."),
+              );
+            }
+
+            return Scaffold(
+              body: Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(color: Color(0xff102733)),
+                  ),
+                  SingleChildScrollView(
+                    child: Stack(
+                      children: [
+                        Column(
+                          children: [
+                            CoverEventDetails(
+                              photo: widget.event.photo,
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              child: Column(
+                                children: [
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      TitleEventDetails(
+                                        mediaQuery: mediaQuery,
+                                        title: widget.event.title,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 4,
+                                    ),
+                                    child: AddressBoxEventDetails(
+                                      mediaQuery: mediaQuery,
+                                      event: widget.event,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 4,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        ShowMapEventDetails(
+                                          latitude: widget.event.latitude,
+                                          longitude: widget.event.longitude,
+                                          title: widget.event.title,
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        ConfirmButtonEventDetails(
+                                          isGoing: isGoing,
+                                          isLoading: _isLoading,
+                                          onPressed: () =>
+                                              _redirectGoingOrNot(isGoing, id),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  ChatEventDetails(
+                                    isGoing: isGoing,
+                                    title: widget.event.title,
+                                    userId: id ?? "",
+                                    eventId: widget.event.id,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 4,
+                                    ),
+                                    child: DateBoxEventDetails(
+                                      mediaQuery: mediaQuery,
+                                      date: widget.event.date,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 4,
+                                    ),
+                                    child: TimeBoxEventDetails(
+                                      mediaQuery: mediaQuery,
+                                      event: widget.event,
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: widget.event.isPayed,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 4,
+                                      ),
+                                      child: EventPriceDetails(
+                                        amount: widget.event.amount ?? 0,
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 4,
+                                    ),
+                                    child: ShowPeopleConfirmedOnEvent(
+                                      mediaQuery: mediaQuery,
+                                    ),
+                                  ),
+                                  ShowUsersOnEvent(
+                                    mediaQuery: mediaQuery,
+                                    event: widget.event,
+                                  ),
+                                  NoUsersOnEvent(
+                                    isEmpty: widget.event.users.isEmpty,
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 10,
+                                    ),
+                                    child: DecriptionBoxEventDetails(),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 4,
+                                    ),
+                                    child: DescriptionEventDetails(
+                                      mediaQuery: mediaQuery,
+                                      description: widget.event.description,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const TopCloseButton(),
+                      ],
                     ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TitleEventDetails(
-                                mediaQuery: mediaQuery,
-                                title: widget.event.title,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: AddressBoxEventDetails(
-                              mediaQuery: mediaQuery,
-                              event: widget.event,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                ShowMapEventDetails(
-                                  latitude: widget.event.latitude,
-                                  longitude: widget.event.longitude,
-                                  title: widget.event.title,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                ConfirmButtonEventDetails(
-                                  isGoing: isGoing,
-                                  isLoading: _isLoading,
-                                  onPressed: () =>
-                                      _redirectGoingOrNot(isGoing, id),
-                                ),
-                              ],
-                            ),
-                          ),
-                          ChatEventDetails(
-                            isGoing: isGoing,
-                            title: widget.event.title,
-                            userId: id ?? "",
-                            eventId: widget.event.id,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: DateBoxEventDetails(
-                              mediaQuery: mediaQuery,
-                              date: widget.event.date,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: TimeBoxEventDetails(
-                              mediaQuery: mediaQuery,
-                              event: widget.event,
-                            ),
-                          ),
-                          Visibility(
-                            visible: widget.event.isPayed,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 4,
-                              ),
-                              child: EventPriceDetails(
-                                amount: widget.event.amount ?? 0,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: ShowPeopleConfirmedOnEvent(
-                              mediaQuery: mediaQuery,
-                            ),
-                          ),
-                          ShowUsersOnEvent(
-                            mediaQuery: mediaQuery,
-                            event: widget.event,
-                          ),
-                          NoUsersOnEvent(
-                            isEmpty: widget.event.users.isEmpty,
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10,
-                            ),
-                            child: DecriptionBoxEventDetails(),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 4,
-                            ),
-                            child: DescriptionEventDetails(
-                              mediaQuery: mediaQuery,
-                              description: widget.event.description,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -212,13 +238,11 @@ class _EventDetailsState extends State<EventDetails> {
   }
 
   void _createPayment(String userId) {
-    PaymentClient client = PaymentClient();
-
     setState(() {
       _isLoading = true;
     });
 
-    client
+    _paymentClient
         .createPaymentIntent(widget.event.id, userId)
         .then(
           (value) => Navigator.pushReplacement(
@@ -234,10 +258,15 @@ class _EventDetailsState extends State<EventDetails> {
           ),
         )
         .onError(
-          (error, stackTrace) => ScaffoldMessenger.of(context).showSnackBar(
-            buildErrorSnackBar(
-                "Ocorreu um erro ao criar seu pagamento, tente novamente mais tarde."),
-          ),
+          (error, stackTrace) => {
+            setState(() {
+              _isLoading = false;
+            }),
+            ScaffoldMessenger.of(context).showSnackBar(
+              buildErrorSnackBar(
+                  "Ocorreu um erro ao criar seu pagamento, tente novamente mais tarde."),
+            )
+          },
         );
   }
 
@@ -308,16 +337,30 @@ class _EventDetailsState extends State<EventDetails> {
     });
   }
 
-  bool checkIfUserIsGoing(String? userId) {
+  Future<bool> checkIfUserIsGoing(String? userId) async {
     if (userId == null) {
       return false;
+    }
+
+    bool userIsGoing = false;
+
+    if (widget.event.isPayed) {
+      List<Payment> payments = await _paymentClient
+          .getPaymentsByEventIdAndUserId(widget.event.id, userId);
+
+      for (Payment p in payments) {
+        if (p.status == PaymentStatus.success) {
+          userIsGoing = true;
+          break;
+        }
+      }
+
+      return userIsGoing;
     }
 
     if (widget.event.users.isEmpty) {
       return false;
     }
-
-    bool userIsGoing = false;
 
     for (var user in widget.event.users) {
       if (user.id == userId) {

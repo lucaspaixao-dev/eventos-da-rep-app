@@ -74,6 +74,7 @@ class _CreateAccountState extends State<CreateAccount> {
                       AppCreatePasswordTextFormField(
                         passwordController: passwordController,
                         passwordVisible: _passwordVisible,
+                        showPasswordStrength: true,
                       ),
                       const SizedBox(
                         height: 14,

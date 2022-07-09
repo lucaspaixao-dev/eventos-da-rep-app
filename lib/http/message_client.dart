@@ -20,7 +20,7 @@ class MessageClient {
       try {
         final response = await http.get(
           Uri.parse(
-            "$url/events/$eventId/messages",
+            "$url/messages?eventId=$eventId",
           ),
           headers: {
             "Authorization": "Bearer $token",
@@ -52,6 +52,8 @@ class MessageClient {
 
   Future<void> sendMessage(String eventId, String userId, String text) async {
     var request = {
+      'userId': userId,
+      'eventId': eventId,
       'text': text,
     };
 
@@ -59,7 +61,7 @@ class MessageClient {
 
     final response = await http.post(
       Uri.parse(
-        "$url/events/$eventId/messages/user/$userId/send",
+        "$url/messages",
       ),
       body: jsonEncode(request),
       headers: {

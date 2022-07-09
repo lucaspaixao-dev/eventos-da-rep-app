@@ -33,13 +33,13 @@ class UserClient {
           'token': user.device.token,
         },
       };
-      final token = await _firebaseService.getToken();
+      // final token = await _firebaseService.getToken();
 
       final response = await http.post(
         Uri.parse("$url/users"),
         headers: <String, String>{
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          // 'Authorization': 'Bearer $token',
         },
         body: json.encode(request),
       );

@@ -51,8 +51,8 @@ class Payment {
       json['eventId'] as String,
       getStatus(json['status']),
       DateTime.parse(json['createdAt']),
-      DateTime.parse(json['updatedAt']),
-      DateTime.parse(json['paidAt']),
+      json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+      json['paidAt'] != null ? DateTime.parse(json['paidAt']) : null,
     );
   }
 }

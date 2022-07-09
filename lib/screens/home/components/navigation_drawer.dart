@@ -1,4 +1,6 @@
+import 'package:eventos_da_rep/screens/update_password/update_password.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -73,6 +75,37 @@ class NavigationDrawer extends StatelessWidget {
           children: [
             const Divider(
               color: Colors.white,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.lock,
+                color: Colors.white,
+              ),
+              title: const Text(
+                "Alterar Senha",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              onTap: () => {
+                showCupertinoModalBottomSheet(
+                  context: context,
+                  builder: (context) => const UpdatePassword(),
+                ),
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.monetization_on,
+                color: Colors.white,
+              ),
+              title: const Text(
+                "Meus Pagamentos",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              onTap: () => {},
             ),
             ListTile(
               leading: const Icon(

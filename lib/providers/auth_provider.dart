@@ -190,4 +190,26 @@ class AuthProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<void> updatePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    String email = firebaseService.getAuthUser()?.email ?? "";
+
+    if (email.isEmpty) {
+      throw Exception("Usuário não está logado");
+    }
+
+    final credential = EmailAuthProvider.credential(
+      email: email,
+      password: currentPassword,
+    );
+
+    await firebaseService
+        .getAuthUser()
+        ?.reauthenticateWithCredential(credential);
+
+    await firebaseService.getAuthUser()?.updatePassword(newPassword);
+  }
 }
