@@ -35,7 +35,7 @@ class _UpdatePasswordState extends State<UpdatePassword> {
           Container(
             decoration: const BoxDecoration(color: Color(0xff102733)),
           ),
-          //const TopCloseButton(),
+          const TopCloseButton(),
           SizedBox(
             child: Padding(
               padding: const EdgeInsets.all(24.0),

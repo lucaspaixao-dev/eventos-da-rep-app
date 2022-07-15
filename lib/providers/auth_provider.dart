@@ -212,4 +212,8 @@ class AuthProvider extends ChangeNotifier {
 
     await firebaseService.getAuthUser()?.updatePassword(newPassword);
   }
+
+  Future<bool> isGoogleAuth() async {
+    return await _googleSignIn.isSignedIn();
+  }
 }

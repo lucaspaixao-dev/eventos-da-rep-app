@@ -76,22 +76,19 @@ class NavigationDrawer extends StatelessWidget {
             const Divider(
               color: Colors.white,
             ),
-            ListTile(
-              leading: const Icon(
-                Icons.lock,
-                color: Colors.white,
-              ),
-              title: const Text(
-                "Alterar Senha",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              onTap: () => {
-                showCupertinoModalBottomSheet(
-                  context: context,
-                  builder: (context) => const UpdatePassword(),
-                ),
+            FutureBuilder<bool>(
+              future: _isGoogleAuth(context),
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<bool> isGoogleAuth,
+              ) {
+                if (isGoogleAuth.hasData) {
+                  if (isGoogleAuth.data! == false) {
+                    return _getUpdatePasswordOption(context);
+                  }
+                }
+
+                return _getUpdatePasswordOption(context);
               },
             ),
             ListTile(
@@ -146,6 +143,25 @@ class NavigationDrawer extends StatelessWidget {
         ),
       );
 
+  Widget _getUpdatePasswordOption(BuildContext context) => ListTile(
+        leading: const Icon(
+          Icons.lock,
+          color: Colors.white,
+        ),
+        title: const Text(
+          "Alterar Senha",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        onTap: () => {
+          showCupertinoModalBottomSheet(
+            context: context,
+            builder: (context) => const UpdatePassword(),
+          ),
+        },
+      );
+
   Future<AppVersion> _getAppInfos() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
@@ -160,6 +176,11 @@ class NavigationDrawer extends StatelessWidget {
       version: version,
       buildVersion: buildNumber,
     );
+  }
+
+  Future<bool> _isGoogleAuth(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    return await authProvider.isGoogleAuth();
   }
 
   void _logout(BuildContext context) {
