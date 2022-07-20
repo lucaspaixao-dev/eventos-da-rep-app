@@ -6,6 +6,7 @@ class Payment {
   final String currency;
   final String userId;
   final String eventId;
+  final String eventName;
   final PaymentStatus status;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -19,6 +20,7 @@ class Payment {
     this.currency,
     this.userId,
     this.eventId,
+    this.eventName,
     this.status,
     this.createdAt,
     this.updatedAt,
@@ -49,6 +51,7 @@ class Payment {
       json['currency'] as String,
       json['userId'] as String,
       json['eventId'] as String,
+      json['eventName'] as String,
       getStatus(json['status']),
       DateTime.parse(json['createdAt']),
       json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,

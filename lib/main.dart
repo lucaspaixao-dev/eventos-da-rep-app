@@ -53,8 +53,10 @@ void main() async {
 }
 
 void _initStripe() {
-  Stripe.publishableKey =
-      "pk_test_51LGNtsA6S1gOJhLnWgKUPft69BWKzy4zznzRFP6xZJC9QvLksfkybA6J1UGJWUMQLfk6DzURUv7WqnGOVUqsTE1T00h3igqbkj";
+  final String stripePublishableKey =
+      Environment().config!.stripePublishableKey;
+
+  Stripe.publishableKey = stripePublishableKey;
   Stripe.merchantIdentifier = "Eventos da REP";
 }
 

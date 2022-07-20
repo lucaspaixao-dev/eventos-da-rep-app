@@ -187,13 +187,16 @@ class EventCheckoutState extends State<EventCheckout> {
                               ),
                             ),
                           )
-                          .onError(
-                            (error, stackTrace) =>
-                                ScaffoldMessenger.of(context).showSnackBar(
-                              buildErrorSnackBar(
-                                  "Ocorreu um erro ao realizar seu pagamento, tente novamente mais tarde."),
-                            ),
-                          ),
+                          .catchError(
+                              (e) => ScaffoldMessenger.of(context).showSnackBar(
+                                  buildErrorSnackBar(e.error.message)),
+                              test: (e) => e is StripeException)
+                          .catchError(
+                              (e) => ScaffoldMessenger.of(context).showSnackBar(
+                                    buildErrorSnackBar(
+                                        "Ocorreu um erro ao realizar seu pagamento, tente novamente mais tarde."),
+                                  ),
+                              test: (e) => e is Exception),
                       text: "Pagar",
                       color: Colors.blue,
                     ),

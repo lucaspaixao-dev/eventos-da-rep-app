@@ -17,7 +17,7 @@ import '../../models/user.dart';
 import '../../providers/shared_preferences_provider.dart';
 import '../../services/firebase_service.dart';
 import 'components/navigation_drawer.dart';
-import 'components/no_items_found_indicator.dart';
+import '../../widgets/no_items_found_indicator.dart';
 import 'components/popular_event_tile.dart';
 
 class Home extends StatefulWidget {
@@ -153,7 +153,10 @@ class _HomeState extends State<Home> {
                       builderDelegate: PagedChildBuilderDelegate<Event>(
                         transitionDuration: const Duration(milliseconds: 500),
                         noItemsFoundIndicatorBuilder: (_) =>
-                            const NoItemsFoundIndicator(),
+                            const NoItemsFoundIndicator(
+                          message:
+                              "A REP não tem nenhum próximo evento agendado, mas fique ligado que logo terá!",
+                        ),
                         itemBuilder: (context, item, index) => InkWell(
                           onTap: () async {
                             SnackBar appSnackBar;

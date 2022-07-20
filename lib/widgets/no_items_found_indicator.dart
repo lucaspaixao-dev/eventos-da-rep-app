@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class NoItemsFoundIndicator extends StatelessWidget {
-  const NoItemsFoundIndicator({Key? key}) : super(key: key);
+  const NoItemsFoundIndicator({Key? key, required this.message})
+      : super(key: key);
+  final String message;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -18,9 +20,9 @@ class NoItemsFoundIndicator extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            const Text(
-              "A REP não tem nenhum próximo evento agendado, mas fique ligado que logo terá!",
-              style: TextStyle(
+            Text(
+              message,
+              style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 14,
               ),

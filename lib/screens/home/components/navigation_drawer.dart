@@ -1,3 +1,4 @@
+import 'package:eventos_da_rep/screens/payments_list/payment_list.dart';
 import 'package:eventos_da_rep/screens/update_password/update_password.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -102,7 +103,12 @@ class NavigationDrawer extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              onTap: () => {},
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PaymentList(),
+                ),
+              ),
             ),
             ListTile(
               leading: const Icon(

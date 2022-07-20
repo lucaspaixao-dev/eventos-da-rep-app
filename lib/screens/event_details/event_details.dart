@@ -20,6 +20,7 @@ import 'components/description_box_event_details.dart';
 import 'components/description_event_details.dart';
 import 'components/event_price_details.dart';
 import 'components/no_users_event.dart';
+import 'components/processing_button_event_details.dart';
 import 'components/show_map_event_details.dart';
 import 'components/show_people_confirmed_event.dart';
 import 'components/show_users_on_event.dart';
@@ -42,6 +43,7 @@ class _EventDetailsState extends State<EventDetails> {
   final _userClient = UserClient();
   final _paymentClient = PaymentClient();
   bool _isLoading = false;
+  Payment? _currentPayment;
 
   @override
   Widget build(BuildContext context) {
@@ -127,11 +129,24 @@ class _EventDetailsState extends State<EventDetails> {
                                         const SizedBox(
                                           width: 10,
                                         ),
-                                        ConfirmButtonEventDetails(
-                                          isGoing: isGoing,
-                                          isLoading: _isLoading,
-                                          onPressed: () =>
-                                              _redirectGoingOrNot(isGoing, id),
+                                        Visibility(
+                                          visible: (_currentPayment != null &&
+                                              _currentPayment!.status ==
+                                                  PaymentStatus.processing),
+                                          child:
+                                              const ProcessingButtonEventDetails(),
+                                        ),
+                                        Visibility(
+                                          visible: (_currentPayment == null) ||
+                                              (_currentPayment!.status !=
+                                                  PaymentStatus.processing),
+                                          child: ConfirmButtonEventDetails(
+                                            isGoing: isGoing,
+                                            isLoading: _isLoading,
+                                            onPressed: () =>
+                                                _redirectGoingOrNot(
+                                                    isGoing, id),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -233,7 +248,52 @@ class _EventDetailsState extends State<EventDetails> {
         _going(id);
       }
     } else {
-      _cancel(id);
+      if (widget.event.isPayed) {
+        _refundAndCancel();
+      } else {
+        _cancel(id);
+      }
+    }
+  }
+
+  void _refundAndCancel() {
+    if (_currentPayment == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        buildErrorSnackBar("Pagamento não encontrado."),
+      );
+    } else {
+      setState(() {
+        _isLoading = true;
+      });
+
+      _paymentClient.refund(_currentPayment!.id).then((_) {
+        final result = {
+          'title': 'Que pena! 😢😢😢',
+          'message':
+              'Cancelamento confirmado! Você irá receber o extorno em breve',
+          'isSuccess': 'success',
+        };
+
+        FirebaseMessaging.instance.unsubscribeFromTopic(widget.event.id).then(
+              (value) => {
+                setState(() {
+                  _isLoading = false;
+                }),
+                Navigator.pop(context, result),
+              },
+            );
+      }).onError((error, __) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        final result = {
+          'title': 'Ops! Ocorreu um erro',
+          'message': 'Falha ao cancelar sua ida ao evento, tente novamente!',
+          'isSuccess': 'failure',
+        };
+        Navigator.pop(context, result);
+      });
     }
   }
 
@@ -264,7 +324,8 @@ class _EventDetailsState extends State<EventDetails> {
             }),
             ScaffoldMessenger.of(context).showSnackBar(
               buildErrorSnackBar(
-                  "Ocorreu um erro ao criar seu pagamento, tente novamente mais tarde."),
+                "Ocorreu um erro ao criar seu pagamento, tente novamente mais tarde.",
+              ),
             )
           },
         );
@@ -351,6 +412,8 @@ class _EventDetailsState extends State<EventDetails> {
       for (Payment p in payments) {
         if (p.status == PaymentStatus.success) {
           userIsGoing = true;
+          _currentPayment = p;
+          await FirebaseMessaging.instance.subscribeToTopic(widget.event.id);
           break;
         }
       }

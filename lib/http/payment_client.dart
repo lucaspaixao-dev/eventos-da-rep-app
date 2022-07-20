@@ -67,4 +67,53 @@ class PaymentClient {
       );
     }
   }
+
+  Future<List<Payment>> getPaymentsByUser(
+    String userId,
+    int pageKey,
+    int pageSize,
+  ) async {
+    final token = await _firebaseService.getToken();
+
+    final response = await http.get(
+      Uri.parse(
+        "$url/payments/user/$userId",
+      ),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
+      final List<Payment> payments =
+          List<Payment>.from(json.map((e) => Payment.fromJson(e)));
+      return payments;
+    } else {
+      throw ApiException(
+        "Erro ao criar o pagamento, tente novamente mais tarde.",
+      );
+    }
+  }
+
+  Future<void> refund(String paymentId) async {
+    final token = await _firebaseService.getToken();
+
+    final response = await http.put(
+      Uri.parse(
+        "$url/payments/$paymentId/refund",
+      ),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    if (response.statusCode != 204) {
+      throw ApiException(
+        "Erro ao realizar extorno, tente novamente mais tarde.",
+      );
+    }
+  }
 }
