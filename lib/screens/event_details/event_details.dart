@@ -227,7 +227,7 @@ class _EventDetailsState extends State<EventDetails> {
                             ),
                           ],
                         ),
-                        const TopCloseButton(),
+                        //const TopCloseButton(),
                       ],
                     ),
                   ),
