@@ -28,9 +28,9 @@ class UserClient {
         'photo': user.photo,
         'isAdmin': false,
         'device': {
-          'brand': user.device.brand,
-          'model': user.device.model,
-          'token': user.device.token,
+          'brand': user.device?.brand ?? "",
+          'model': user.device?.model ?? "",
+          'token': user.device?.token ?? "",
         },
       };
       // final token = await _firebaseService.getToken();

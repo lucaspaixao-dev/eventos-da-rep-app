@@ -5,7 +5,7 @@ class User {
   final String name;
   final String email;
   final String photo;
-  final Device device;
+  final Device? device;
   final List<String>? events;
 
   User({
@@ -13,7 +13,7 @@ class User {
     required this.name,
     required this.email,
     required this.photo,
-    required this.device,
+    this.device,
     this.events,
   });
 
@@ -31,7 +31,7 @@ class User {
       email: json['email'] as String,
       photo: json['photo'] as String,
       events: _getEventsId(json['events']),
-      device: Device.fromJson(json['device']),
+      device: json['device'] != null ? Device.fromJson(json['device']) : null,
     );
   }
 }

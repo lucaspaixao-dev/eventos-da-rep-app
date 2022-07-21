@@ -19,7 +19,7 @@ class CheckoutCompleted extends StatelessWidget {
           Wrap(
             children: [
               const SizedBox(
-                height: 600.0,
+                height: 400.0,
                 child: Image(
                   image: AssetImage("assets/completed.png"),
                 ),
@@ -40,7 +40,7 @@ class CheckoutCompleted extends StatelessWidget {
               Center(
                 child: Container(
                   margin: const EdgeInsets.only(top: 30.0),
-                  width: 400,
+                  width: 350,
                   child: const AppBackButton(isLoading: false),
                 ),
               ),

@@ -78,7 +78,7 @@ class _PaymentListState extends State<PaymentList> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: SizedBox(
-              height: mediaQuery.size.height * 0.64,
+              height: mediaQuery.size.height * 0.80,
               child: RefreshIndicator(
                 onRefresh: () => Future.sync(
                   () => _pagingController.refresh(),

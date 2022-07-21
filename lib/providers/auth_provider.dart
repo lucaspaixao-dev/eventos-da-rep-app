@@ -125,7 +125,7 @@ class AuthProvider extends ChangeNotifier {
       );
       await _sharedPreferencesProvider.putStringValue(
         prefCloudToken,
-        user.device.token,
+        user.device?.token ?? "",
       );
 
       User? firebaseUser = firebaseService.getAuthUser();
