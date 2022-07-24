@@ -103,6 +103,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'Eventos da Rep',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -111,19 +112,6 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-
-  // @override
-  // Widget build(BuildContext context) => ChangeNotifierProvider(
-  //       create: (_) => AuthProvider(),
-  //       child: MaterialApp(
-  //         title: 'Eventos da Rep',
-  //         theme: ThemeData(
-  //           primarySwatch: Colors.blue,
-  //           visualDensity: VisualDensity.adaptivePlatformDensity,
-  //         ),
-  //         home: const Controller(),
-  //       ),
-  //     );
 }
 
 class Controller extends StatelessWidget {

@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../models/device.dart';
 import '../services/firebase_service.dart';
@@ -48,13 +49,55 @@ class AuthProvider extends ChangeNotifier {
           .getFirebaseAuthInstance()
           .signInWithCredential(credential);
 
-      await FirebaseMessaging.instance.subscribeToTopic("users-topic");
+      await firebaseService.subscribeToTopic("users-topic");
 
       notifyListeners();
     } catch (e) {
       await _googleSignIn.disconnect();
       firebaseService.getFirebaseAuthInstance().signOut();
 
+      rethrow;
+    }
+  }
+
+  Future<void> appleSignin() async {
+    try {
+      final appleCredentials = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final oAuthProvider = OAuthProvider('apple.com');
+      final credential = oAuthProvider.credential(
+        idToken: appleCredentials.userIdentifier,
+        accessToken: appleCredentials.identityToken,
+      );
+
+      final gravatar = Gravatar(appleCredentials.email!);
+      String photoUrl = gravatar.imageUrl();
+
+      await _createUserOnService(
+        appleCredentials.givenName!,
+        appleCredentials.email!,
+        photoUrl,
+      );
+
+      final userCredential = await firebaseService
+          .getFirebaseAuthInstance()
+          .signInWithCredential(credential);
+
+      final firebaseUser = userCredential.user!;
+
+      final displayName =
+          '${appleCredentials.givenName} ${appleCredentials.familyName}';
+      await firebaseUser.updateDisplayName(displayName);
+
+      await firebaseService.subscribeToTopic("users-topic");
+      notifyListeners();
+    } catch (e) {
+      firebaseService.getFirebaseAuthInstance().signOut();
       rethrow;
     }
   }

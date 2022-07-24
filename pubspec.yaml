@@ -43,6 +43,7 @@ dependencies:
   flutter_app_badger: ^1.4.0
   rxdart: ^0.26.0
   loading_animation_widget:
+  sign_in_with_apple: ^4.1.0
 
 dev_dependencies:
   flutter_test:

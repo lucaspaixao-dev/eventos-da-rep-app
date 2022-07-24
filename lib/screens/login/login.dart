@@ -170,6 +170,30 @@ class _LoginState extends State<Login> {
                     },
                   ),
                 ),
+                Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.only(top: 10),
+                  child: SignInButton(
+                    text: "Entrar com a Apple",
+                    mini: false,
+                    Buttons.AppleDark,
+                    onPressed: () async {
+                      try {
+                        final authService =
+                            Provider.of<AuthProvider>(context, listen: false);
+                        await authService.appleSignin();
+                      } on ApiException catch (e) {
+                        SnackBar snackBar = buildErrorSnackBar(e.cause);
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      } on Exception catch (_) {
+                        SnackBar snackBar = buildErrorSnackBar(
+                          "Ocorreu um erro ao conectar a Apple, tente novamente mais tarde.",
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ),
