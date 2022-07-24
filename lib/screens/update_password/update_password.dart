@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_create_password_text_form_field.dart';
 import '../../widgets/app_snack_bar.dart';
-import '../../widgets/top_close_button.dart';
 
 class UpdatePassword extends StatefulWidget {
   const UpdatePassword({Key? key}) : super(key: key);
@@ -30,6 +29,10 @@ class _UpdatePasswordState extends State<UpdatePassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Alterar senha'),
+        backgroundColor: const Color(0xff102733),
+      ),
       body: Stack(
         children: [
           Container(
@@ -44,16 +47,6 @@ class _UpdatePasswordState extends State<UpdatePassword> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      const Center(
-                        child: Text(
-                          "Alteração de senha",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
                       const SizedBox(
                         height: 16,
                       ),

@@ -7,8 +7,6 @@ import 'package:eventos_da_rep/widgets/app_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-
 import '../../helpers/date_helper.dart';
 import '../../helpers/string_helper.dart';
 import '../../http/event_client.dart';
@@ -159,31 +157,14 @@ class _HomeState extends State<Home> {
                         ),
                         itemBuilder: (context, item, index) => InkWell(
                           onTap: () async {
-                            SnackBar appSnackBar;
-                            bool isSuccess;
-                            await _navigateAndDisplayResult(context, item)
-                                .then((value) => {
-                                      if (value != null)
-                                        {
-                                          isSuccess =
-                                              value['isSuccess'] == 'success',
-                                          appSnackBar = AppSnackBar(
-                                            duration: const Duration(
-                                              milliseconds: 2000,
-                                            ),
-                                            title: value['title']!,
-                                            message: value['message']!,
-                                            isSuccess: isSuccess,
-                                            elevation: 10.0,
-                                          ).buildSnackBar(),
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(appSnackBar),
-                                          if (isSuccess)
-                                            {
-                                              _pagingController.refresh(),
-                                            }
-                                        }
-                                    });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EventDetails(
+                                  eventId: item.id,
+                                ),
+                              ),
+                            );
                           },
                           child: PopularEventTile(
                             desc: item.title,
@@ -202,20 +183,6 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-  }
-
-  Future<Map<String, String>?> _navigateAndDisplayResult(
-    BuildContext context,
-    Event event,
-  ) async {
-    final result = await showCupertinoModalBottomSheet<Map<String, String>>(
-      context: context,
-      builder: (context) => EventDetails(
-        event: event,
-      ),
-    );
-
-    return result;
   }
 
   Future<void> _fetchPage(int pageKey) async {

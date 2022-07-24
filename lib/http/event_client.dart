@@ -46,4 +46,39 @@ class EventClient {
       );
     }
   }
+
+  Future<Event> getEventById(String eventId) async {
+    final hasInternet = await checkInternetConnection();
+
+    if (!hasInternet) {
+      throw InternetException(
+        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
+      );
+    }
+
+    try {
+      final token = await _firebaseService.getToken();
+
+      final response = await http.get(
+        Uri.parse("$url/events/$eventId"),
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final dynamic json = jsonDecode(utf8.decode(response.bodyBytes));
+        final Event event = Event.fromJson(json);
+        return event;
+      } else {
+        throw ApiException(
+          "Erro para buscar o evento, tente novamente mais tarde.",
+        );
+      }
+    } catch (e) {
+      throw ApiException(
+        "Erro para buscar o evento, tente novamente mais tarde.",
+      );
+    }
+  }
 }

@@ -26,4 +26,12 @@ class FirebaseService {
       throw Exception("Usuário não está logado.");
     }
   }
+
+  Future<void> subscribeToTopic(String topic) async {
+    await _firebaseMessaging.subscribeToTopic(topic);
+  }
+
+  Future<void> unsubscribeToTopic(String topic) async {
+    await _firebaseMessaging.unsubscribeFromTopic(topic);
+  }
 }
