@@ -176,7 +176,6 @@ class _LoginState extends State<Login> {
                   visible: Platform.isIOS,
                   child: Container(
                     alignment: Alignment.center,
-                    margin: const EdgeInsets.only(top: 10),
                     child: SignInButton(
                       text: "Entrar com a Apple",
                       mini: false,
@@ -189,9 +188,9 @@ class _LoginState extends State<Login> {
                         } on ApiException catch (e) {
                           SnackBar snackBar = buildErrorSnackBar(e.cause);
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        } on Exception catch (_) {
+                        } on Exception catch (e) {
                           SnackBar snackBar = buildErrorSnackBar(
-                            "Ocorreu um erro ao conectar a Apple, tente novamente mais tarde.",
+                            e.toString(),
                           );
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }

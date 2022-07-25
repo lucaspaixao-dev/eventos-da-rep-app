@@ -28,7 +28,7 @@ packages:
       name: awesome_snackbar_content
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.5"
+    version: "0.0.6"
   boolean_selector:
     dependency: transitive
     description:
@@ -175,7 +175,7 @@ packages:
       name: firebase_auth
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.5.0"
+    version: "3.5.1"
   firebase_auth_platform_interface:
     dependency: transitive
     description:
@@ -189,7 +189,7 @@ packages:
       name: firebase_auth_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.0"
+    version: "4.1.1"
   firebase_core:
     dependency: "direct main"
     description:
@@ -278,7 +278,7 @@ packages:
       name: flutter_chat_ui
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.3"
+    version: "1.6.4"
   flutter_credit_card_brazilian:
     dependency: "direct main"
     description:
@@ -327,7 +327,7 @@ packages:
       name: flutter_native_splash
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.5"
+    version: "2.2.6"
   flutter_parsed_text:
     dependency: transitive
     description:
@@ -708,7 +708,7 @@ packages:
       name: rxdart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.26.0"
+    version: "0.27.5"
   shared_preferences:
     dependency: "direct main"
     description:

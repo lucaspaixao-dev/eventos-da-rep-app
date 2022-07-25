@@ -62,59 +62,64 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> appleSignin() async {
     try {
-      final appleCredentials = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
+      if (await SignInWithApple.isAvailable()) {
+        final appleCredentials = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+        );
 
-      if (appleCredentials.email == null) {
-        throw Exception("Você precisa compartilhar seu e-mail para continuar");
+        if (appleCredentials.email == null) {
+          throw Exception(
+              "Você precisa compartilhar seu e-mail para continuar");
+        }
+
+        final oAuthProvider = OAuthProvider('apple.com');
+        final credential = oAuthProvider.credential(
+          idToken: appleCredentials.identityToken,
+          accessToken: appleCredentials.authorizationCode,
+        );
+
+        final gravatar = Gravatar(appleCredentials.email!);
+        String photoUrl = gravatar.imageUrl();
+
+        await _createUserOnService(
+          appleCredentials.givenName!,
+          appleCredentials.email!,
+          photoUrl,
+        );
+
+        final userCredential = await firebaseService
+            .getFirebaseAuthInstance()
+            .signInWithCredential(credential);
+
+        final firebaseUser = userCredential.user!;
+
+        final displayName =
+            '${appleCredentials.givenName} ${appleCredentials.familyName}';
+        await firebaseUser.updateDisplayName(displayName);
+
+        await _sharedPreferencesProvider.putStringValue(
+          prefUserName,
+          displayName,
+        );
+
+        await _sharedPreferencesProvider.putStringValue(
+          prefUserEmail,
+          appleCredentials.email!,
+        );
+
+        await _sharedPreferencesProvider.putStringValue(
+          prefUserPhotoUrl,
+          photoUrl,
+        );
+
+        await firebaseService.subscribeToTopic("users-topic");
+        notifyListeners();
+      } else {
+        throw Exception("Login com a apple não está disponível");
       }
-
-      final oAuthProvider = OAuthProvider('apple.com');
-      final credential = oAuthProvider.credential(
-        idToken: appleCredentials.identityToken,
-        accessToken: appleCredentials.authorizationCode,
-      );
-
-      final gravatar = Gravatar(appleCredentials.email!);
-      String photoUrl = gravatar.imageUrl();
-
-      await _createUserOnService(
-        appleCredentials.givenName!,
-        appleCredentials.email!,
-        photoUrl,
-      );
-
-      final userCredential = await firebaseService
-          .getFirebaseAuthInstance()
-          .signInWithCredential(credential);
-
-      final firebaseUser = userCredential.user!;
-
-      final displayName =
-          '${appleCredentials.givenName} ${appleCredentials.familyName}';
-      await firebaseUser.updateDisplayName(displayName);
-
-      await _sharedPreferencesProvider.putStringValue(
-        prefUserName,
-        displayName,
-      );
-
-      await _sharedPreferencesProvider.putStringValue(
-        prefUserEmail,
-        appleCredentials.email!,
-      );
-
-      await _sharedPreferencesProvider.putStringValue(
-        prefUserPhotoUrl,
-        photoUrl,
-      );
-
-      await firebaseService.subscribeToTopic("users-topic");
-      notifyListeners();
     } catch (e) {
       firebaseService.getFirebaseAuthInstance().signOut();
       rethrow;

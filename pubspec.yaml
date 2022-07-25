@@ -41,7 +41,7 @@ dependencies:
   flutter_credit_card_brazilian: ^2.0.0
   flutter_password_strength: ^0.1.6
   flutter_app_badger: ^1.4.0
-  rxdart: ^0.26.0
+  rxdart: ^0.27.5
   loading_animation_widget:
   sign_in_with_apple: ^4.1.0
 
