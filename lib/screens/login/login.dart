@@ -152,7 +152,7 @@ class _LoginState extends State<Login> {
                   alignment: Alignment.center,
                   margin: const EdgeInsets.only(top: 10),
                   child: SignInButton(
-                    text: "Entrar com Google",
+                    text: "Entrar com o Google",
                     mini: false,
                     Buttons.GoogleDark,
                     onPressed: () async {
