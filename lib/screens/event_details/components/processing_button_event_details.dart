@@ -6,14 +6,14 @@ class ProcessingButtonEventDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: null,
+      onPressed: () {},
       style: ElevatedButton.styleFrom(
         primary: const Color.fromARGB(255, 228, 172, 50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
         ),
       ),
-      child: const Text('Processando...'),
+      child: const Text('Processando pagamento...'),
     );
   }
 }

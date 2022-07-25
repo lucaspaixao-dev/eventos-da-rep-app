@@ -18,7 +18,7 @@ class PaymentService {
     }
   }
 
-  Future<Payment?> getSuccessPaymentOnEvent(
+  Future<Payment?> getSuccessOrProcessingPayment(
     String userId,
     String eventId,
   ) async {
@@ -28,7 +28,8 @@ class PaymentService {
     );
 
     for (Payment p in payments) {
-      if (p.status == PaymentStatus.success) {
+      if (p.status == PaymentStatus.success ||
+          p.status == PaymentStatus.processing) {
         return p;
       }
     }
@@ -40,7 +41,25 @@ class PaymentService {
     return await _paymentClient.createPaymentIntent(eventId, userId);
   }
 
-  Future<void> refundPayment(String paymentId) async {
-    await _paymentClient.refund(paymentId);
+  Future<void> refundPayment(Payment payment) async {
+    if (payment.status == PaymentStatus.success) {
+      await _paymentClient.refund(payment.id);
+    } else {
+      throw Exception(
+        'Não é possível reembolsar um pagamento que está em processamento',
+      );
+    }
+  }
+
+  bool isProcessingPayment(Payment? payment) {
+    if (payment == null) {
+      return false;
+    }
+
+    if (payment.status == PaymentStatus.processing) {
+      return true;
+    }
+
+    return false;
   }
 }

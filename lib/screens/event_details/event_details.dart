@@ -190,15 +190,13 @@ class _EventDetailsState extends State<EventDetails> {
                                     width: 10,
                                   ),
                                   Visibility(
-                                    visible: (_currentPayment != null &&
-                                        _currentPayment!.status ==
-                                            PaymentStatus.processing),
+                                    visible: _paymentService
+                                        .isProcessingPayment(_currentPayment),
                                     child: const ProcessingButtonEventDetails(),
                                   ),
                                   Visibility(
-                                    visible: (_currentPayment == null) ||
-                                        (_currentPayment!.status !=
-                                            PaymentStatus.processing),
+                                    visible: !_paymentService
+                                        .isProcessingPayment(_currentPayment),
                                     child: ConfirmButtonEventDetails(
                                       isGoing: _isGoing,
                                       isLoading: _isLoading,
@@ -327,7 +325,7 @@ class _EventDetailsState extends State<EventDetails> {
       bloc.updateLoading(true);
 
       try {
-        await _paymentService.refundPayment(_currentPayment!.id);
+        await _paymentService.refundPayment(_currentPayment!);
         await _firebaseService.unsubscribeToTopic(_event.id);
 
         ScreenMessage message = ScreenMessage(
@@ -451,6 +449,6 @@ class _EventDetailsState extends State<EventDetails> {
     }
 
     _currentPayment =
-        await _paymentService.getSuccessPaymentOnEvent(userId, _event.id);
+        await _paymentService.getSuccessOrProcessingPayment(userId, _event.id);
   }
 }
