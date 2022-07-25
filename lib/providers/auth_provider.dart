@@ -69,10 +69,14 @@ class AuthProvider extends ChangeNotifier {
         ],
       );
 
+      if (appleCredentials.email == null) {
+        throw Exception("Você precisa compartilhar seu e-mail para continuar");
+      }
+
       final oAuthProvider = OAuthProvider('apple.com');
       final credential = oAuthProvider.credential(
-        idToken: appleCredentials.userIdentifier,
-        accessToken: appleCredentials.identityToken,
+        idToken: appleCredentials.identityToken,
+        accessToken: appleCredentials.authorizationCode,
       );
 
       final gravatar = Gravatar(appleCredentials.email!);
@@ -93,6 +97,21 @@ class AuthProvider extends ChangeNotifier {
       final displayName =
           '${appleCredentials.givenName} ${appleCredentials.familyName}';
       await firebaseUser.updateDisplayName(displayName);
+
+      await _sharedPreferencesProvider.putStringValue(
+        prefUserName,
+        displayName,
+      );
+
+      await _sharedPreferencesProvider.putStringValue(
+        prefUserEmail,
+        appleCredentials.email!,
+      );
+
+      await _sharedPreferencesProvider.putStringValue(
+        prefUserPhotoUrl,
+        photoUrl,
+      );
 
       await firebaseService.subscribeToTopic("users-topic");
       notifyListeners();
