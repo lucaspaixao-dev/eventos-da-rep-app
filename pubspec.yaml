@@ -3,7 +3,7 @@ description: Eventos da REP app.
 
 publish_to: 'none'
 
-version: 1.4.0+7
+version: 1.5.0+8
 
 environment:
   sdk: ">=2.17.1 <3.0.0"
