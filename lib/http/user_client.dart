@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:eventos_da_rep/config/environment.dart';
 import 'package:eventos_da_rep/exceptions/exceptions.dart';
-import 'package:eventos_da_rep/models/device.dart';
 import "package:http/http.dart" as http;
 
 import '../helpers/internet_helper.dart';
@@ -26,14 +25,8 @@ class UserClient {
         'name': user.name,
         'email': user.email,
         'photo': user.photo,
-        'isAdmin': false,
-        'device': {
-          'brand': user.device?.brand ?? "",
-          'model': user.device?.model ?? "",
-          'token': user.device?.token ?? "",
-        },
+        'isAdmin': false
       };
-      // final token = await _firebaseService.getToken();
 
       final response = await http.post(
         Uri.parse("$url/users"),
@@ -62,43 +55,6 @@ class UserClient {
     } catch (e) {
       throw ApiException(
         "Erro para criar um novo usuário, tente novamente mais tarde.",
-      );
-    }
-  }
-
-  Future<void> syncDevide(String userId, Device device) async {
-    final hasInternet = await checkInternetConnection();
-
-    if (!hasInternet) {
-      throw InternetException(
-        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
-      );
-    }
-
-    try {
-      var request = {
-        'brand': device.brand,
-        'model': device.model,
-        'token': device.token,
-      };
-
-      final token = await _firebaseService.getToken();
-      final response = await http.put(
-        Uri.parse("$url/users/$userId/devices"),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode(request),
-      );
-
-      if (response.statusCode != 204) {
-        throw ApiException(
-            'Erro para sincronizar o dispositivo, tente novamente mais tarde.');
-      }
-    } catch (e) {
-      throw ApiException(
-        "Erro para sincronizar o dispositivo, tente novamente mais tarde.",
       );
     }
   }

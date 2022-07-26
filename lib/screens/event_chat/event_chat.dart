@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 
+import '../../providers/shared_preferences_provider.dart';
 import '../../widgets/app_snack_bar.dart';
+import '../../widgets/no_items_found_indicator.dart';
+import '../../widgets/screen_loader.dart';
 
 class EventChat extends StatefulWidget {
   final String eventId;
-  final String userId;
+  final String? userId;
   final String eventName;
 
   const EventChat({
@@ -25,10 +28,50 @@ class EventChat extends StatefulWidget {
 class _EventChatState extends State<EventChat> {
   final MessageClient client = MessageClient();
   late types.User _user;
+  late String _userId;
+  bool _isFirstTime = true;
 
   @override
   Widget build(BuildContext context) {
-    _user = types.User(id: widget.userId);
+    if (widget.userId == null) {
+      return _getUserIdAndLoadChat();
+    } else {
+      _setUserId(widget.userId!);
+      return _buildChat();
+    }
+  }
+
+  Widget _getUserIdAndLoadChat() {
+    return FutureBuilder(
+      future: SharedPreferencesProvider().getStringValue(prefUserId),
+      builder: (context, snaphot) {
+        if (snaphot.connectionState == ConnectionState.waiting) {
+          return const ScreenLoader();
+        } else if (snaphot.connectionState == ConnectionState.done) {
+          String? id = snaphot.data as String?;
+
+          if (id != null) {
+            _setUserId(id);
+            return _buildChat();
+          } else {
+            return const NoItemsFoundIndicator(
+              message:
+                  "Ocorreu um erro ao carregar o chat, tente novamente mais tarde.",
+            );
+          }
+        } else {
+          return const NoItemsFoundIndicator(
+            message:
+                "Ocorreu um erro ao carregar o chat, tente novamente mais tarde.",
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildChat() {
+    _user = types.User(id: _userId);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat do evento: ${widget.eventName}'),
@@ -37,24 +80,42 @@ class _EventChatState extends State<EventChat> {
       body: StreamBuilder<List<types.Message>>(
         initialData: const [],
         stream: client.getMessages(widget.eventId),
-        builder: (context, snapshot) => Chat(
-          messages: snapshot.data ?? [],
-          onSendPressed: _handleSendPressed,
-          user: _user,
-          emptyState: _buildEmptyMessages(),
-          theme: const DefaultChatTheme(
-            inputBackgroundColor: Colors.white12,
-            backgroundColor: Color(0xff102733),
-          ),
-          l10n: const ChatL10nEn(
-            inputPlaceholder: 'Digite sua mensagem aqui',
-          ),
-          showUserAvatars: true,
-          showUserNames: true,
-        ),
+        builder: (context, snapshot) {
+          if (!_isFirstTime) {
+            return _getChatWidget(snapshot.data);
+          } else {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const ScreenLoader();
+            } else if (snapshot.connectionState == ConnectionState.active) {
+              _isFirstTime = false;
+              return _getChatWidget(snapshot.data);
+            } else {
+              return const NoItemsFoundIndicator(
+                message:
+                    "Ocorreu um erro ao carregar o chat, tente novamente mais tarde.",
+              );
+            }
+          }
+        },
       ),
     );
   }
+
+  Widget _getChatWidget(List<types.Message>? messages) => Chat(
+        messages: messages ?? [],
+        onSendPressed: _handleSendPressed,
+        user: _user,
+        emptyState: _buildEmptyMessages(),
+        theme: const DefaultChatTheme(
+          inputBackgroundColor: Colors.white12,
+          backgroundColor: Color(0xff102733),
+        ),
+        l10n: const ChatL10nEn(
+          inputPlaceholder: 'Digite sua mensagem aqui',
+        ),
+        showUserAvatars: true,
+        showUserNames: true,
+      );
 
   Widget _buildEmptyMessages() => Container(
         alignment: Alignment.center,
@@ -77,7 +138,7 @@ class _EventChatState extends State<EventChat> {
     client
         .sendMessage(
           widget.eventId,
-          widget.userId,
+          _userId,
           message.text,
         )
         .catchError(
@@ -92,5 +153,9 @@ class _EventChatState extends State<EventChat> {
           },
           test: (e) => e is ApiException,
         );
+  }
+
+  void _setUserId(String userId) {
+    _userId = userId;
   }
 }

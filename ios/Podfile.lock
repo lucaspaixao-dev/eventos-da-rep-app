@@ -5,8 +5,6 @@ PODS:
   - AppAuth/Core (1.5.0)
   - AppAuth/ExternalUserAgent (1.5.0):
     - AppAuth/Core
-  - device_info_plus (0.0.1):
-    - Flutter
   - Firebase/Auth (9.3.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 9.3.0)
@@ -147,7 +145,6 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
@@ -188,8 +185,6 @@ SPEC REPOS:
     - StripeUICore
 
 EXTERNAL SOURCES:
-  device_info_plus:
-    :path: ".symlinks/plugins/device_info_plus/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -221,7 +216,6 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AppAuth: 80317d99ac7ff2801a2f18ff86b48cd315ed465d
-  device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
   Firebase: ef75abb1cdbc746d5a38f4e26c422c807b189b8c
   firebase_auth: f6e32ca8921ff9fff94ba73745b67455fee8b22f
   firebase_core: 96214f90497b808a2cf2a24517084c5f6de37b53

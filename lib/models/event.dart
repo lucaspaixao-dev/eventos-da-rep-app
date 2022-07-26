@@ -1,4 +1,3 @@
-import 'package:eventos_da_rep/models/device.dart';
 import 'package:eventos_da_rep/models/user.dart';
 import 'package:intl/intl.dart';
 
@@ -49,7 +48,6 @@ class Event {
             name: user['name'] as String,
             email: user['email'] as String,
             photo: user['photo'] as String,
-            device: Device(token: "", brand: "", model: ""),
             events: null,
           );
           currentUsers.add(u);

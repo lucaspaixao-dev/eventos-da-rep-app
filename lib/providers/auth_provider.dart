@@ -1,6 +1,5 @@
 import 'package:eventos_da_rep/http/user_client.dart';
 import 'package:eventos_da_rep/models/user.dart' as project;
-import 'package:eventos_da_rep/providers/device_provider.dart';
 import 'package:eventos_da_rep/providers/shared_preferences_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_gravatar/flutter_gravatar.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-import '../models/device.dart';
 import '../services/firebase_service.dart';
 
 class AuthProvider extends ChangeNotifier {
@@ -19,7 +17,6 @@ class AuthProvider extends ChangeNotifier {
   final SharedPreferencesProvider _sharedPreferencesProvider =
       SharedPreferencesProvider();
 
-  final DeviceProvider deviceProvider = DeviceProvider();
   final FirebaseMessaging messaging = FirebaseService().getMessaging();
 
   GoogleSignInAccount? _user;
@@ -190,10 +187,6 @@ class AuthProvider extends ChangeNotifier {
         prefUserId,
         user.id!,
       );
-      await _sharedPreferencesProvider.putStringValue(
-        prefCloudToken,
-        user.device?.token ?? "",
-      );
 
       User? firebaseUser = firebaseService.getAuthUser();
       if (firebaseUser != null) {
@@ -234,24 +227,12 @@ class AuthProvider extends ChangeNotifier {
     String photo,
   ) async {
     try {
-      String? token = await messaging.getToken();
-      final Device device = await deviceProvider.getDeviceInfos(token!);
-
-      final newUser = project.User(
-        name: name,
-        email: email,
-        photo: photo,
-        device: device,
-      );
+      final newUser = project.User(name: name, email: email, photo: photo);
 
       final userId = await _userClient.createUser(newUser);
       await _sharedPreferencesProvider.putStringValue(
         prefUserId,
         userId,
-      );
-      await _sharedPreferencesProvider.putStringValue(
-        prefCloudToken,
-        token,
       );
     } catch (e) {
       rethrow;
