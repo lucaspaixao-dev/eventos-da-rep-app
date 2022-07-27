@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:eventos_da_rep/screens/event_details/event_details_bloc.dart';
+import 'package:eventos_da_rep/services/calendar_service.dart';
 import 'package:eventos_da_rep/services/user_service.dart';
 import 'package:eventos_da_rep/widgets/no_items_found_indicator.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,7 @@ class _EventDetailsState extends State<EventDetails> {
   final _firebaseService = FirebaseService();
   final _paymentService = PaymentService();
   final _userService = UserService();
+  final _calendarService = CalendarService();
 
   late String _userId;
   late bool _isGoing;
@@ -327,6 +329,7 @@ class _EventDetailsState extends State<EventDetails> {
       try {
         await _paymentService.refundPayment(_currentPayment!);
         await _firebaseService.unsubscribeToTopic(_event.id);
+        await _calendarService.deleteEventOnAppCalendar(_event);
 
         ScreenMessage message = ScreenMessage(
           'Que pena! 😢😢😢',
@@ -389,6 +392,8 @@ class _EventDetailsState extends State<EventDetails> {
       );
 
       await _firebaseService.subscribeToTopic(_event.id);
+      await _calendarService.createCalendarOnAppCalendar(_event);
+
       bloc.updateMessage(message);
       bloc.updateLoading(false);
     } catch (e) {
@@ -414,6 +419,8 @@ class _EventDetailsState extends State<EventDetails> {
       );
 
       await _firebaseService.unsubscribeToTopic(_event.id);
+      await _calendarService.deleteEventOnAppCalendar(_event);
+
       bloc.updateMessage(message);
       bloc.updateLoading(false);
     } catch (e) {
@@ -445,6 +452,7 @@ class _EventDetailsState extends State<EventDetails> {
     _isGoing = await _eventService.checkIfUserIsGoingToEvent(userId, _event);
 
     if (_isGoing) {
+      await _calendarService.createCalendarOnAppCalendar(_event);
       await _firebaseService.subscribeToTopic(_event.id);
     }
 

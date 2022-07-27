@@ -56,6 +56,10 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Requer acesso à câmera</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>INSERT_REASON_HERE</string>	
+	<key>NSContactsUsageDescription</key>
+	<string>Access contacts for event attendee editing.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
