@@ -152,4 +152,34 @@ class UserClient {
       );
     }
   }
+
+  Future<void> deleteUser(String userId) async {
+    final hasInternet = await checkInternetConnection();
+
+    if (!hasInternet) {
+      throw InternetException(
+        "Sem conexão com a internet, por favor, verifique sua conexão e tente novamente.",
+      );
+    }
+
+    final token = await _firebaseService.getToken();
+
+    try {
+      final response = await http.delete(
+        Uri.parse("$url/users/$userId"),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 204) {
+        throw ApiException(
+            "Erro para excluir o usuário, tente novamente mais tarde.");
+      }
+    } catch (e) {
+      throw ApiException(
+        "Erro para excluir o usuário, tente novamente mais tarde.",
+      );
+    }
+  }
 }
