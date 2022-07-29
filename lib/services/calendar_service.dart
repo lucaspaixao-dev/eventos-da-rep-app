@@ -9,6 +9,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 class CalendarService {
   final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
+  final String _calendar = 'Eventos da REP';
 
   Future<void> createCalendarOnAppCalendar(appEvent.Event event) async {
     try {
@@ -19,19 +20,25 @@ class CalendarService {
       }
 
       Calendar? appCalendar = await _getAppCalendar();
-      late Event calendarEvent;
+      late Event? calendarEvent;
+      late String calendarId;
 
       if (appCalendar == null) {
         final Result<String> resultCalendarId =
-            await _deviceCalendarPlugin.createCalendar('Eventos da REP');
+            await _deviceCalendarPlugin.createCalendar(_calendar);
 
-        if (resultCalendarId.isSuccess && resultCalendarId.data != null) {
-          calendarEvent =
-              await _createOrUpdateEvent(resultCalendarId.data!, event);
-          _createEventOnAppCalendar(calendarEvent);
+        if (!resultCalendarId.isSuccess) {
+          return;
         }
+
+        calendarId = resultCalendarId.data!;
       } else {
-        calendarEvent = await _createOrUpdateEvent(appCalendar.id!, event);
+        calendarId = appCalendar.id!;
+      }
+
+      calendarEvent = await _createEvent(calendarId, event);
+
+      if (calendarEvent != null) {
         _createEventOnAppCalendar(calendarEvent);
       }
     } catch (e) {
@@ -102,7 +109,7 @@ class CalendarService {
     debugPrint(result.toString());
   }
 
-  Future<Event> _createOrUpdateEvent(
+  Future<Event?> _createEvent(
     String calendarId,
     appEvent.Event event,
   ) async {
@@ -113,7 +120,7 @@ class CalendarService {
       RetrieveEventsParams(
         startDate: start,
         endDate: start.add(
-          const Duration(days: 1),
+          const Duration(days: 30),
         ),
       ),
     );
@@ -126,34 +133,36 @@ class CalendarService {
 
     if (events.data != null) {
       for (var e in events.data!) {
-        if (e.title == event.title) {
+        final String eventTitle = _buildStringComparatorFormat(e.title ?? "");
+        final String eTitle = _buildStringComparatorFormat(event.title);
+
+        if (eventTitle == eTitle) {
           calendarEvent = e;
           break;
         }
       }
     }
 
-    var beginDate = await _getTimeZone(event.date, event.begin);
-    var endDate = await _getTimeZone(event.date, event.end);
+    if (calendarEvent == null) {
+      var beginDate = await _getTimeZone(event.date, event.begin);
+      var endDate = await _getTimeZone(event.date, event.end);
 
-    var newCalendarEvent = Event(calendarId);
-    newCalendarEvent.title = event.title;
-    newCalendarEvent.description = event.description;
-    newCalendarEvent.start = beginDate;
-    newCalendarEvent.end = endDate;
-    newCalendarEvent.location = buildAddressResume(event);
-    newCalendarEvent.availability = Availability.Busy;
-    newCalendarEvent.reminders = [
-      Reminder(
-        minutes: 60,
-      ),
-    ];
-
-    if (calendarEvent != null) {
-      newCalendarEvent.eventId = calendarEvent.eventId;
+      var newCalendarEvent = Event(calendarId);
+      newCalendarEvent.title = event.title;
+      newCalendarEvent.description = event.description;
+      newCalendarEvent.start = beginDate;
+      newCalendarEvent.end = endDate;
+      newCalendarEvent.location = buildAddressResume(event);
+      newCalendarEvent.availability = Availability.Busy;
+      newCalendarEvent.reminders = [
+        Reminder(
+          minutes: 60,
+        ),
+      ];
+      return newCalendarEvent;
     }
 
-    return newCalendarEvent;
+    return null;
   }
 
   Future<Calendar?> _getAppCalendar() async {
@@ -168,7 +177,12 @@ class CalendarService {
     }
 
     for (var calendar in calendars.data!) {
-      if (calendar.name == "Eventos da REP") {
+      final String appCalendarName = _buildStringComparatorFormat(_calendar);
+
+      final String calendarName =
+          _buildStringComparatorFormat(calendar.name ?? "");
+
+      if (calendarName == appCalendarName) {
         return calendar;
       }
     }
@@ -208,4 +222,7 @@ class CalendarService {
 
     return newDay;
   }
+
+  String _buildStringComparatorFormat(String stringToFormat) =>
+      stringToFormat.trim().toUpperCase();
 }
